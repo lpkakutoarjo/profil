@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Sitemap: https://reennd.github.io/lpkakutoarjo.com/sitemap.xml
+
+# Mencegah indexing file sistem/aset yang tidak perlu muncul di pencarian
+Disallow: /css/
+Disallow: /js/
+Disallow: /image/
