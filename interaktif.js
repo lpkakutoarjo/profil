@@ -1,8 +1,8 @@
 /* FILE: interaktif.js (UPDATED V3.0 - FULL DATA)
-    STATUS: FINAL
     DESKRIPSI: Menangani koneksi ke Spreadsheet, Routing Halaman, dan Render Data (Termasuk Kunjungan, Pengaduan)
 */
-
+// Tambahkan disable: 'mobile' jika ingin mematikan di HP, 
+// tapi jika tetap ingin aktif, gunakan pengaturan ini:
 AOS.init({ 
     once: true, 
     duration: 800, 
@@ -16,14 +16,12 @@ window.addEventListener('load', () => {
     if (loader) {
         setTimeout(() => {
             loader.style.display = 'none';
-            // PENTING: Refresh AOS setelah loading selesai agar posisi dihitung ulang dengan benar
             AOS.refresh();
         }, 500);
     }
 });
 // --- KONFIGURASI API UTAMA ---
-// Link Web App Google Apps Script TERBARU (Sesuai request Anda)
-const API_URL = 'https://script.google.com/macros/s/AKfycby2t2M-ZSy661Gm35hSjDw-0UW0WE0E_Yt3oVvTWfnqLWTnguadZodWELOCGQ6wvleK/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbw2I3yoN3pnaqLRBVSOtp_PCyIAGm-5pfvdmIVSJSDVpRN1FLyc4dJ-AjXtqKKj3wRm/exec'; 
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -137,7 +135,6 @@ async function loadData() {
     }
 }
 
-
 // ==========================================
 // HELPER: RENDER BERDASARKAN HALAMAN
 // ==========================================
@@ -210,6 +207,7 @@ function renderByPage(data) {
 // ==========================================
 // 2. RENDER LAYANAN SPESIFIK (KUNJUNGAN, PENGADUAN)
 // ==========================================
+
 function renderLayananSpesifik(type, data) {
     const container = document.getElementById('service-content-area');
     if (!container) return;
@@ -301,20 +299,19 @@ contentHtml += `
                                 <p class="small text-muted">Pelajari tata cara dan regulasi kunjungan resmi kami.</p>
                             </div>
 
-                            <a href="javascript:void(0);"
-                               onclick="openDocPreview('Standar Operasional Prosedur', '${data.url_sop || ''}')"
-                               class="btn btn-white border shadow-sm w-100 p-3 rounded-4 hover-lift transition-all">
-                                
-                                <div class="d-flex align-items-center text-start">
-                                    <div class="bg-warning text-dark rounded-3 p-3 me-3">
-                                        <i class="fas fa-file-pdf fa-lg"></i>
-                                    </div>
-                                    <div class="overflow-hidden">
-                                        <div class="fw-bold text-dark text-truncate">Lihat Prosedur</div>
-                                        <small class="text-muted d-block">Klik untuk Pratinjau</small>
-                                    </div>
-                                </div>
-                            </a>
+<a href="javascript:void(0);" 
+onclick="openDocPreview('Standar Operasional Prosedur', '${(data.url_sop || '').replace(/'/g, "\\'")}')" 
+   class="btn btn-white border shadow-sm w-100 p-3 rounded-4 hover-lift transition-all">
+    <div class="d-flex align-items-center text-start">
+        <div class="bg-warning text-dark rounded-3 p-3 me-3">
+            <i class="fas fa-file-pdf fa-lg"></i>
+        </div>
+        <div class="overflow-hidden">
+            <div class="fw-bold text-dark text-truncate">Lihat Prosedur</div>
+            <small class="text-muted d-block">Klik untuk Pratinjau</small>
+        </div>
+    </div>
+</a>
 
                             <div class="mt-4 pt-3 border-top d-none d-lg-block">
                                 <div class="d-flex align-items-center text-muted">
@@ -552,6 +549,9 @@ function showImagePreview(url, title) {
     }
 }
 
+// ==========================================
+// 5. RENDER FUNCTIONS INFO PUBLIK (MODEL ACCORDION CARD)
+// ==========================================
 function renderInfoPublik(list) {
     const container = document.getElementById('infopublik-container');
     if (!container) return;
@@ -660,61 +660,57 @@ function setupInfoPublikMenu(list) {
 // MODUL INFO PUBLIK (FULL INTEGRATED)
 // ==========================================
 
-/**
- * Mendeteksi dan Membuka Preview Dokumen dalam Modal
- */
 function openDocPreview(title, url) {
-    // 1. Validasi URL
-    if (!url || url.trim() === '' || url === 'undefined' || url === 'null') {
+    if (!url || url.trim() === '' || url === 'undefined') {
         alert("Maaf, link dokumen tidak tersedia.");
         return;
     }
 
-    // 2. Samakan ID dengan elemen di HTML (previewModal & previewFrame)
-    const modalEl = document.getElementById('previewModal');
-    const iframe = document.getElementById('previewFrame');
-    const modalTitle = document.getElementById('previewTitle');
+    const modalEl = document.getElementById('docPreviewModal') || document.getElementById('previewModal');
+    const iframe = document.getElementById('docFrame') || document.getElementById('previewFrame');
+    const modalTitle = document.getElementById('docModalTitle') || document.getElementById('previewTitle');
 
-    // 3. Konversi URL Google Drive agar bisa tampil di Iframe
-    let previewUrl = url.trim();
-    if (previewUrl.includes('drive.google.com')) {
-        // Ambil ID file Google Drive
-        const match = previewUrl.match(/(?:d\/|id=|file\/d\/)([-\w]{25,})/);
-        if (match && match[1]) {
-            previewUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
-        }
-    }
-
-    // 4. Logika Menampilkan Popup
     if (modalEl && iframe) {
-        if (modalTitle) modalTitle.innerText = 'Preview: ' + title;
+        if (modalTitle) modalTitle.innerText = title;
+
+        let previewUrl = url.trim();
+
+        if (previewUrl.includes('drive.google.com')) {
+            // 1. Tangani format link 'uc?export=view&id=...' atau 'uc?id=...'
+            if (previewUrl.includes('uc?')) {
+                const urlParams = new URLSearchParams(previewUrl.split('?')[1]);
+                const fileId = urlParams.get('id');
+                if (fileId) {
+                    previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+                }
+            } 
+            // 2. Tangani format link standar /view atau /edit
+            else {
+                previewUrl = previewUrl.replace(/\/view.*$/, '/preview')
+                                       .replace(/\/edit.*$/, '/preview')
+                                       .replace(/\/sharing.*$/, '/preview');
+            }
+
+            // 3. Pastikan tidak ada parameter download yang tertinggal
+            previewUrl = previewUrl.replace(/[\?&]export=download/, "");
+        }
+
+        // Set URL hasil konversi ke iframe
         iframe.src = previewUrl;
 
-        try {
-            // Cek apakah bootstrap sudah terload
-            if (typeof bootstrap !== 'undefined') {
-                const myModal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                myModal.show();
-                
-                // Reset src saat modal ditutup agar tidak berat
-                modalEl.addEventListener('hidden.bs.modal', () => {
-                    iframe.src = '';
-                }, { once: true });
-            } else {
-                // Jika bootstrap JS belum dimuat, buka di tab baru
-                window.open(previewUrl, '_blank');
-            }
-        } catch (err) {
-            window.open(previewUrl, '_blank');
-        }
+        const myModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        myModal.show();
+
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            iframe.src = '';
+        }, { once: true });
     } else {
-        window.open(previewUrl, '_blank');
+        window.open(url, '_blank');
     }
 }
 
-/**
- * Render List Dokumen dari Spreadsheet ke Accordion
- */
+// Render List Dokumen dari Spreadsheet ke Accordion
+
 function renderInfoPublik(list) {
     const container = document.getElementById('infopublik-container');
     if (!container) return;
@@ -1087,12 +1083,8 @@ function renderPejabatFull(list) {
     let html = '';
     
 // --- CARD BESAR 1: Pejabat Tertinggi (Versi Lebih Compact) ---
-const kepalaList = list.filter(
-    p => (p.kategori || '').toLowerCase() === 'kepala'
-);
-
-if (kepalaList.length > 0) {
-    const p1 = kepalaList[0];
+if (list.length > 0) {
+    const p1 = list[0];
     html += `
     <div class="col-12 mb-4" data-aos="fade-up">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden mx-auto" style="max-width: 900px;"> 
@@ -1114,20 +1106,19 @@ if (kepalaList.length > 0) {
     </div>`;
 }
     
-// ...existing code...
+// --- CARD BESAR 2: 5 Pejabat Utama (Eselon IVA) ---
+const start2 = 1;
+const end2 = Math.min(6, list.length);
 
-// --- CARD BESAR 2: Pejabat Eselon IVA (berdasarkan kategori) ---
-const eselonIVAList = list.filter(
-    p => (p.kategori || '').toLowerCase() === 'eselon iva'
-);
-
-if (eselonIVAList.length > 0) {
+if (end2 > start2) {
     html += `
     <div class="col-12 mb-5" data-aos="fade-up" data-aos-delay="100">
         <h5 class="fw-bold text-primary mb-4 text-center">Eselon IVA</h5>
+        
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 justify-content-center">`;
-
-    eselonIVAList.forEach(p => {
+    
+    for (let i = start2; i < end2; i++) {
+        const p = list[i];
         html += `
             <div class="col">
                 <div class="card card-pejabat h-100 border-0 shadow-sm rounded-4 overflow-hidden">
@@ -1154,26 +1145,23 @@ if (eselonIVAList.length > 0) {
                     </div>
                 </div>
             </div>`;
-    });
-
+    }
     html += `
         </div>
     </div>`;
 }
-
-// ...existing code...
     
-// --- CARD BESAR 3: Eselon V (berdasarkan kategori) ---
-const eselonVList = list.filter(
-    p => (p.kategori || '').toLowerCase() === 'eselon v'
-);
-
-if (eselonVList.length > 0) {
+// --- CARD BESAR 3: Eselon V ---
+const start3 = 6;
+if (list.length > start3) {
     html += `
     <div class="col-12 mb-4" data-aos="fade-up" data-aos-delay="200">
         <h5 class="fw-bold text-primary mb-4 text-center">Eselon V</h5>
+        
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 justify-content-center">`;
-    eselonVList.forEach(p => {
+    
+    for (let i = start3; i < list.length; i++) {
+        const p = list[i];
         html += `
             <div class="col">
                 <div class="card card-pejabat h-100 border-0 shadow-sm rounded-4 overflow-hidden">
@@ -1200,7 +1188,7 @@ if (eselonVList.length > 0) {
                     </div>
                 </div>
             </div>`;
-    });
+    }
     html += `
         </div>
     </div>`;
@@ -1328,38 +1316,21 @@ function renderTupoksi(list) {
 function renderStruktur(list) {
     const container = document.getElementById('struktur-container');
     const loadingElement = document.getElementById('loading-struktur');
-    
+    if (!container) return;
     // Cek jika data kosong
-    if(!list || list.length === 0) { 
+    if (!list || list.length === 0) { 
         container.innerHTML = '<div class="text-center">Data struktur belum tersedia.</div>'; 
-        if(loadingElement) loadingElement.style.display = 'none'; 
+        if (loadingElement) loadingElement.style.display = 'none'; 
         return; 
     }
-    
     let item = list[0];
-    
     // 1. Ambil Gambar
     let imgUrl = item.image ? fixGoogleDriveImage(item.image) : "";
-    
-    // 2. Ambil Link Dokumen (Prioritas: 'Url Dokumen' -> item.urlDokumen)
-    // Variasi lain ditambahkan untuk jaga-jaga
-    let docLink = item.urlDokumen || item.url_dokumen || item.link || item.url || "";
-    let docTitle = item.judul || 'Struktur Organisasi';
-
-    // 3. Buat HTML Tombol (Pop up preview, bukan link langsung)
-    let buttonHtml = "";
-    if (docLink && docLink !== "#" && docLink.length > 5) {
-        buttonHtml = `
-        <div class="mt-4" data-aos="fade-up">
-            <a href="javascript:void(0);" onclick="openDocPreview('${docTitle.replace(/'/g, "\\'")}', '${docLink.replace(/'/g, "\\'")}')" class="btn btn-primary rounded-pill px-5 py-2 shadow-sm fw-bold">
-                <i class="fas fa-file-pdf me-2"></i> Lihat Dokumen Lengkap
-            </a>
-        </div>`;
-    }
-
-    // 4. Render HTML Gabungan
+    // 2. Ambil Link Dokumen (Menggunakan kolom url_dokumen)
+    let docLink = item.url_dokumen || item.urlDokumen || item.link || "";
+    // 3. Render HTML Gabungan dengan Gaya Tombol Baru
     container.innerHTML = `
-        <h4 class="mb-4 fw-bold text-dark">${docTitle}</h4>
+        <h4 class="mb-4 fw-bold text-dark">${item.judul || 'Struktur Organisasi'}</h4>
         
         ${imgUrl ? `
         <div class="mb-4">
@@ -1368,10 +1339,27 @@ function renderStruktur(list) {
         
         <p class="text-muted w-75 mx-auto lh-lg">${item.deskripsi || ''}</p>
         
-        ${buttonHtml} 
-    `;
-    
-    if(loadingElement) loadingElement.style.display = 'none';
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6 col-lg-5">
+                <div class="d-grid gap-3 position-relative px-2" style="z-index: 2;">
+                    <a href="javascript:void(0);" 
+                       onclick="openDocPreview('Dokumen Struktur Organisasi', '${docLink}')" 
+                       class="btn btn-primary text-start py-3 hover-scale border-0 shadow-sm rounded-4"
+                       style="background: linear-gradient(135deg, #003366 0%, #004080 100%);">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-pdf fs-5 text-white"></i>
+                            </div>
+                            <div class="lh-sm overflow-hidden text-white">
+                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Dokumen Lengkap</small>
+                                <span class="fw-bold small text-truncate d-block">Lihat Struktur Organisasi (PDF)</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>`;
+    if (loadingElement) loadingElement.style.display = 'none';
 }
 
 /* --- FUNGSI RENDER BERITA (BERANDA) --- */
@@ -2534,7 +2522,6 @@ function fixGoogleDriveImage(url) {
     
     return url; 
 }
-
 
 // Jalankan saat dokumen siap
 document.addEventListener('DOMContentLoaded', loadData);
