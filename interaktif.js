@@ -1840,7 +1840,10 @@ function renderPKBM(list) {
         }
     };
 
-    // --- 7. LOGIKA BAR CHART UTAMA ---
+// --- 7. LOGIKA DATA UNTUK GRAFIK (FILTERING) ---
+    // Skip baris pertama (index 0) dan ambil 5 baris berikutnya
+    const filteredListForChart = list.slice(1, 6);
+
     let mainChartInstance = null;
     const selectFilterTahun = document.getElementById('filterTahunPKBM');
     const selectFilterKat = document.getElementById('filterKategoriPKBM');
@@ -1867,8 +1870,8 @@ function renderPKBM(list) {
         let datasets = [];
 
         if (tahunVal === 'all') {
-            const sortedList = [...list].sort((a, b) => a.tahun - b.tahun);
-            labels = sortedList.map(item => item.tahun);
+            // Gunakan data yang sudah difilter (index 1-5)
+            labels = filteredListForChart.map(item => item.tahun);
 
             const createDataset = (label, data, colorInfo) => ({
                 label: label, data: data, backgroundColor: colorInfo.bg,
@@ -1876,17 +1879,18 @@ function renderPKBM(list) {
             });
 
             if (kategoriVal === 'semua' || kategoriVal === 'siswa') {
-                datasets.push(createDataset('Paket A', sortedList.map(i => parseInt(i.siswa_a)||0), colors.siswa.A));
-                datasets.push(createDataset('Paket B', sortedList.map(i => parseInt(i.siswa_b)||0), colors.siswa.B));
-                datasets.push(createDataset('Paket C', sortedList.map(i => parseInt(i.siswa_c)||0), colors.siswa.C));
+                datasets.push(createDataset('Paket A', filteredListForChart.map(i => parseInt(i.siswa_a)||0), colors.siswa.A));
+                datasets.push(createDataset('Paket B', filteredListForChart.map(i => parseInt(i.siswa_b)||0), colors.siswa.B));
+                datasets.push(createDataset('Paket C', filteredListForChart.map(i => parseInt(i.siswa_c)||0), colors.siswa.C));
             }
             if (kategoriVal === 'semua' || kategoriVal === 'lulusan') {
-                datasets.push(createDataset('Lulusan A', sortedList.map(i => parseInt(i.lulus_a)||0), colors.lulusan.A));
-                datasets.push(createDataset('Lulusan B', sortedList.map(i => parseInt(i.lulus_b)||0), colors.lulusan.B));
-                datasets.push(createDataset('Lulusan C', sortedList.map(i => parseInt(i.lulus_c)||0), colors.lulusan.C));
+                datasets.push(createDataset('Lulusan A', filteredListForChart.map(i => parseInt(i.lulus_a)||0), colors.lulusan.A));
+                datasets.push(createDataset('Lulusan B', filteredListForChart.map(i => parseInt(i.lulus_b)||0), colors.lulusan.B));
+                datasets.push(createDataset('Lulusan C', filteredListForChart.map(i => parseInt(i.lulus_c)||0), colors.lulusan.C));
             }
         } else {
-            const item = list.find(d => d.tahun == tahunVal);
+            // Cari data hanya di dalam filteredListForChart
+            const item = filteredListForChart.find(d => d.tahun == tahunVal);
             labels = ['Paket A (SD)', 'Paket B (SMP)', 'Paket C (SMA)'];
             if (item) {
                 datasets.push({
@@ -1901,7 +1905,6 @@ function renderPKBM(list) {
                 });
             }
         }
-
         mainChartInstance = new Chart(ctx, {
             type: 'bar',
             data: { labels: labels, datasets: datasets },
@@ -1988,7 +1991,10 @@ function renderKlinik(list) {
         ratioText = "-"; // ABH belum diisi
     }
 
-    // D. Data Statistik (Multi Tahun)
+// --- 3. FILTER DATA UNTUK GRAFIK (Skip Baris 1, Ambil 5 Baris Berikutnya) ---
+    const filteredListForStats = list.slice(1, 6); // Ambil index 1 sampai 5
+    const hasMultiYear = filteredListForStats.length > 1;
+
     const monthKeys = [
         { key: 'stats_jan', label: 'Jan' }, { key: 'stats_feb', label: 'Feb' },
         { key: 'stats_mar', label: 'Mar' }, { key: 'stats_apr', label: 'Apr' },
@@ -2002,10 +2008,9 @@ function renderKlinik(list) {
     let monthlyDatasets = [];
     let yearlyLabels = [];
     let yearlyData = [];
-    let hasMultiYear = list.length > 1;
 
-    list.forEach((row, index) => {
-        let yearLabel = row.tahun ? String(row.tahun) : (list.length > 1 ? `Tahun ${index + 1}` : 'Tahun Berjalan');
+    filteredListForStats.forEach((row, index) => {
+        let yearLabel = row.tahun ? String(row.tahun) : `Tahun ${index + 1}`;
         let yearMonthlyData = [];
         let yearTotal = 0;
 
