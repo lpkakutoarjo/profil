@@ -116,19 +116,20 @@
             </div>
         </div>
     </main>
-    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="previewModalLabel">Preview Dokumen</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-          </div>
-          <div class="modal-body" style="min-height:70vh;">
-            <iframe id="previewFrame" src="" style="width:100%;height:65vh;border:none;" allowfullscreen></iframe>
-          </div>
+    <div class="modal fade" id="docPreviewModal" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title" id="docModalTitle">Preview Dokumen</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" style="height: 85vh;">
+                    <iframe id="docFrame" src="" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
+</div>
     <footer>
         <div class="container">
             <div class="row">
