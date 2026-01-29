@@ -867,7 +867,7 @@ if (data.berita) data.berita.forEach((item, index) => {
             desc: item.ringkasan || item.isi, 
             // Ubah link dari id ke judul
             link: `bacaselengkapnya.html?judul=${judulUrl}`, 
-            image: item.gambar || item.imageUrl || "" 
+            image: item.gambar1 || item.imageUrl || "" 
         });
     }
 });
