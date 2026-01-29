@@ -855,15 +855,22 @@ function performSearch(data) {
 
     // --- PROSES DATA ---
     // 1. Berita
-    if (data.berita) data.berita.forEach((item, index) => {
-        if (safeLower(item.judul).includes(lowerKeyword)) {
-            currentSearchResults.push({ 
-                type: 'BERITA', title: item.judul, desc: item.ringkasan || item.isi, 
-                link: `bacaselengkapnya.html?id=${index}`, 
-                image: item.gambar || item.imageUrl || "" 
-            });
-        }
-    });
+if (data.berita) data.berita.forEach((item, index) => {
+    if (safeLower(item.judul).includes(lowerKeyword)) {
+        
+        // Buat slug dari judul agar link sesuai dengan sistem baru
+        const judulUrl = encodeURIComponent(slugify(item.judul || ""));
+
+        currentSearchResults.push({ 
+            type: 'BERITA', 
+            title: item.judul, 
+            desc: item.ringkasan || item.isi, 
+            // Ubah link dari id ke judul
+            link: `bacaselengkapnya.html?judul=${judulUrl}`, 
+            image: item.gambar || item.imageUrl || "" 
+        });
+    }
+});
 
     // 2. Dokumen
     const infoPublikData = data.infoPublik || data.infopublik || [];
