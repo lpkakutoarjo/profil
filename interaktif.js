@@ -1362,6 +1362,16 @@ function renderStruktur(list) {
     if (loadingElement) loadingElement.style.display = 'none';
 }
 
+/* --- HELPER: MENGUBAH JUDUL MENJADI SLUG URL --- */
+function slugify(text) {
+    return text.toString().toLowerCase()
+        .replace(/\s+/g, '-')           // Ganti spasi dengan -
+        .replace(/[^\w\-]+/g, '')       // Hapus karakter spesial
+        .replace(/\-\-+/g, '-')         // Ganti double hyphen
+        .replace(/^-+/, '')             // Hapus hyphen di awal
+        .replace(/-+$/, '');            // Hapus hyphen di akhir
+}
+
 /* --- FUNGSI RENDER BERITA (BERANDA) --- */
 function renderBerita(list) {
     const container = document.getElementById('news-container');
@@ -1375,15 +1385,12 @@ function renderBerita(list) {
     let html = '';
     
     latest.forEach((item, idx) => {
-        // Hitung ID asli sebelum di-reverse untuk link
-        const originalIndex = list.length - 1 - idx; 
-        
         // 1. Gambar
         let img = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "") || "https://via.placeholder.com/400x250?text=No+Image";
         
         // 2. LOGIKA TANGGAL YANG AMAN
         let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
-        let dateStr = rawDate; // Default gunakan teks asli jika parsing gagal
+        let dateStr = rawDate; 
 
         if (rawDate) {
             const d = new Date(rawDate);
@@ -1395,6 +1402,9 @@ function renderBerita(list) {
         // 3. Judul & Ringkasan
         let judul = item.judul || item.Judul || "Tanpa Judul";
         let ringkasan = item.ringkasan || item.Ringkasan || item.deskripsi || "";
+        
+        // Buat slug untuk URL
+        let judulUrl = encodeURIComponent(slugify(judul));
 
         html += `
         <div class="col-md-6 mb-4" data-aos="fade-up" data-aos-delay="${idx * 100}">
@@ -1405,10 +1415,10 @@ function renderBerita(list) {
                 </div>
                 <div class="card-body p-4">
                     <h5 class="news-title mb-3">
-                        <a href="bacaselengkapnya.html?id=${originalIndex}" class="text-decoration-none fw-bold lh-base">${judul}</a>
+                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
                     </h5>
                     <p class="small text-secondary">${ringkasan ? ringkasan.substring(0,90)+'...' : ''}</p>
-                    <a href="bacaselengkapnya.html?id=${originalIndex}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
+                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -1431,8 +1441,6 @@ function renderBeritaFull(list) {
     let html = '';
     
     reversedList.forEach((item, idx) => {
-        const originalIndex = list.length - 1 - idx;
-        
         // 1. Gambar
         let img = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "") || "https://via.placeholder.com/400x250?text=No+Image";
         
@@ -1450,6 +1458,9 @@ function renderBeritaFull(list) {
         // 3. Judul & Ringkasan
         let judul = item.judul || item.Judul || "Tanpa Judul";
         let ringkasan = item.ringkasan || item.Ringkasan || item.deskripsi || "";
+        
+        // Buat slug untuk URL
+        let judulUrl = encodeURIComponent(slugify(judul));
 
         html += `
         <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
@@ -1460,10 +1471,10 @@ function renderBeritaFull(list) {
                 </div>
                 <div class="card-body p-3">
                     <h5 class="news-title mb-2 fs-6">
-                        <a href="bacaselengkapnya.html?id=${originalIndex}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
+                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
                     </h5>
                     <p class="small text-muted mb-3" style="font-size:0.85rem;">${ringkasan ? ringkasan.substring(0,80)+'...' : ''}</p>
-                    <a href="bacaselengkapnya.html?id=${originalIndex}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
+                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -1471,17 +1482,24 @@ function renderBeritaFull(list) {
     container.innerHTML = html;
 }
 
+/* --- FUNGSI RENDER DETAIL (HALAMAN BACASELENGKAPNYA) --- */
 function renderDetailBerita(list) {
-    const id = getQueryParam('id');
+    // Ambil parameter 'judul' dari URL (bukan 'id')
+    const params = new URLSearchParams(window.location.search);
+    const slugDicuri = params.get('judul'); 
     
-    // Cek apakah ID dan Data valid
-    if(id === null || !list || !list[id]) { 
-        document.getElementById('detail-title').innerText = "Berita Tidak Ditemukan (404)"; 
+    if(!slugDicuri || !list) { 
+        document.getElementById('detail-title').innerText = "Berita Tidak Ditemukan"; 
         return; 
     }
     
-    const item = list[id];
+    // CARI DATA: Bandingkan slug URL dengan slug dari setiap judul di list
+    const item = list.find(berita => slugify(berita.judul || berita.Judul) === slugDicuri);
 
+    if(!item) { 
+        document.getElementById('detail-title').innerText = "Berita Tidak Ditemukan (404)"; 
+        return; 
+    }
     // 1. JUDUL
     document.getElementById('detail-title').innerText = item.judul || item.Judul || "";
 
