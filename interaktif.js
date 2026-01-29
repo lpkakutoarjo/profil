@@ -1484,7 +1484,7 @@ function renderBeritaFull(list) {
 
 /* --- FUNGSI RENDER DETAIL (HALAMAN BACASELENGKAPNYA) --- */
 function renderDetailBerita(list) {
-    // Ambil parameter 'judul' dari URL (bukan 'id')
+    // Ambil parameter 'judul' dari URL
     const params = new URLSearchParams(window.location.search);
     const slugDicuri = params.get('judul'); 
     
@@ -1493,62 +1493,75 @@ function renderDetailBerita(list) {
         return; 
     }
     
-    // CARI DATA: Bandingkan slug URL dengan slug dari setiap judul di list
+    // CARI DATA
     const item = list.find(berita => slugify(berita.judul || berita.Judul) === slugDicuri);
 
     if(!item) { 
         document.getElementById('detail-title').innerText = "Berita Tidak Ditemukan (404)"; 
         return; 
     }
-    // 1. JUDUL
-    document.getElementById('detail-title').innerText = item.judul || item.Judul || "";
 
-    // 2. TANGGAL (Perbaikan Validasi)
+    // --- OPTIMASI SEO DINAMIS ---
+    const judulAsli = item.judul || item.Judul || "Berita LPKA";
+    const deskripsiSingkat = (item.ringkasan || item.Ringkasan || item.isi || "").substring(0, 160);
+    
+    // 1. Ubah Judul Tab Browser (Sangat Penting untuk Google)
+    document.title = `${judulAsli} | LPKA News`;
+
+    // 2. Ubah Meta Description (Agar muncul di cuplikan Google)
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = "description";
+        document.getElementsByTagName('head')[0].appendChild(metaDesc);
+    }
+    metaDesc.content = deskripsiSingkat;
+
+    // 3. Open Graph (Agar saat share ke WA/FB muncul gambar & judul)
+    updateMetaTag('og:title', judulAsli);
+    updateMetaTag('og:description', deskripsiSingkat);
+    updateMetaTag('og:image', fixGoogleDriveImage(item.gambar1 || item.gambar_1));
+
+    // --- RENDER KONTEN KE HALAMAN ---
+    
+    // 1. JUDUL
+    document.getElementById('detail-title').innerText = judulAsli;
+
+    // 2. TANGGAL
     const dateEl = document.getElementById('detail-date');
     if(dateEl) { 
-        // Ambil data tanggal dari berbagai kemungkinan nama kolom
         let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
-        let dateStr = rawDate; // Default gunakan teks asli jika parsing gagal
-
+        let dateStr = rawDate; 
         if (rawDate) {
             const d = new Date(rawDate);
-            // Cek apakah tanggal valid secara sistem
             if (!isNaN(d.getTime())) {
-                // Jika valid, format ke bahasa Indonesia
                 dateStr = d.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
-            // Jika tidak valid (isNaN), dateStr tetap menggunakan rawDate (teks asli dari Excel)
         }
-        
         dateEl.innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${dateStr} <span class="mx-2">|</span> Humas LPKA`; 
     }
 
-    // 3. GAMBAR UTAMA (Gambar 1 sebagai Header/Sampul)
+    // 3. GAMBAR UTAMA
     const imgEl = document.getElementById('detail-img');
     let img1 = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "");
-    
     if(imgEl) { 
         imgEl.src = img1 || "https://via.placeholder.com/800x500?text=No+Image"; 
         imgEl.style.display = img1 ? 'inline-block' : 'none'; 
     }
     
-    // 4. SIAPKAN GAMBAR TAMBAHAN (Gambar 2 & Gambar 3)
     let img2 = fixGoogleDriveImage(item.gambar2 || item.gambar_2 || item.Gambar2 || "");
     let img3 = fixGoogleDriveImage(item.gambar3 || item.gambar_3 || item.Gambar3 || "");
 
-    // 5. ISI BERITA & SISIPKAN GAMBAR DI SELA PARAGRAF
+    // 4. ISI BERITA & SISIPKAN GAMBAR
     let paragraphs = (item.isi || item.Isi || item.konten || "").toString().split(/\r?\n/).filter(p => p.trim() !== "");
     let htmlContent = "";
     
-    // Hitung posisi penyisipan gambar (1/3 dan 2/3 halaman)
     let idx2 = Math.floor(paragraphs.length / 3);
     let idx3 = Math.floor(2 * paragraphs.length / 3);
 
     paragraphs.forEach((p, i) => {
-        // Tambahkan paragraf teks
         htmlContent += `<p class="lh-lg mb-3" style="text-align:justify;">${p}</p>`;
         
-        // Sisipkan Gambar 2 di posisi 1/3 (jika ada)
         if (i === idx2 && img2) {
             htmlContent += `
             <div class="row justify-content-center my-4" data-aos="fade-up">
@@ -1558,7 +1571,6 @@ function renderDetailBerita(list) {
             </div>`;
         }
 
-        // Sisipkan Gambar 3 di posisi 2/3 (jika ada)
         if (i === idx3 && img3) {
             htmlContent += `
             <div class="row justify-content-center my-4" data-aos="fade-up">
@@ -1570,6 +1582,17 @@ function renderDetailBerita(list) {
     });
 
     document.getElementById('detail-content').innerHTML = htmlContent;
+}
+
+// Fungsi bantu untuk update Meta Tags
+function updateMetaTag(property, content) {
+    let tag = document.querySelector(`meta[property="${property}"]`);
+    if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute('property', property);
+        document.getElementsByTagName('head')[0].appendChild(tag);
+    }
+    tag.content = content;
 }
 function renderVideoSidebar(list) {
     const container = document.getElementById('sidebar-video-container');
