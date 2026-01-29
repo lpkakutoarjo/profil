@@ -1687,8 +1687,6 @@ function renderPKBM(list) {
     let gd = parseInt(data.guru_diploma) || 0;
     let gs = parseInt(data.guru_strata) || 0;
     
-    let totalSiswa = (parseInt(data.siswa_a)||0) + (parseInt(data.siswa_b)||0) + (parseInt(data.siswa_c)||0);
-    
     let logoUrl = fixGoogleDriveImage(data.logo);
     let html = '';
 
@@ -1701,24 +1699,24 @@ function renderPKBM(list) {
                 <p class="text-secondary lh-lg mb-4" style="text-align: justify;">
                     ${data.deskripsi ? data.deskripsi.replace(/\n/g, '<br>') : 'Deskripsi belum tersedia.'}
                 </p>
-              <div class="bg-light p-3 rounded-3 border-start border-4 border-warning shadow-sm">
-    <h6 class="fw-bold text-dark mb-3">
-        <i class="fas fa-calendar-alt me-2 text-warning"></i>Program Kegiatan:
-    </h6>
-    <div class="list-unstyled">
-        ${data.program_kegiatan ? data.program_kegiatan.split(/\r?\n/).filter(k => k.trim() !== "").map((k, i) => `
-            <div class="d-flex align-items-start mb-2">
-                <div class="me-2 d-flex align-items-center justify-content-center shadow-sm" 
-                     style="min-width: 24px; height: 24px; background: linear-gradient(135deg, #ffca28, #f57c00); color: white; border-radius: 6px; font-weight: bold; font-size: 0.75rem; flex-shrink: 0; margin-top: 2px;">
-                    ${i + 1}
+                <div class="bg-light p-3 rounded-3 border-start border-4 border-warning shadow-sm">
+                    <h6 class="fw-bold text-dark mb-3">
+                        <i class="fas fa-calendar-alt me-2 text-warning"></i>Program Kegiatan:
+                    </h6>
+                    <div class="list-unstyled">
+                        ${data.program_kegiatan ? data.program_kegiatan.split(/\r?\n/).filter(k => k.trim() !== "").map((k, i) => `
+                            <div class="d-flex align-items-start mb-2">
+                                <div class="me-2 d-flex align-items-center justify-content-center shadow-sm" 
+                                     style="min-width: 24px; height: 24px; background: linear-gradient(135deg, #ffca28, #f57c00); color: white; border-radius: 6px; font-weight: bold; font-size: 0.75rem; flex-shrink: 0; margin-top: 2px;">
+                                    ${i + 1}
+                                </div>
+                                <div class="text-secondary" style="text-align: justify; font-size: 0.9rem; line-height: 1.4;">
+                                    ${k.trim()}
+                                </div>
+                            </div>
+                        `).join('') : '<div class="text-muted small ps-2">Belum ada data</div>'}
+                    </div>
                 </div>
-                <div class="text-secondary" style="text-align: justify; font-size: 0.9rem; line-height: 1.4;">
-                    ${k.trim()}
-                </div>
-            </div>
-        `).join('') : '<div class="text-muted small ps-2">Belum ada data</div>'}
-    </div>
-</div>
             </div>
         </div>
         
@@ -1784,7 +1782,7 @@ function renderPKBM(list) {
         html += renderGalleryMarquee(galeriData, "Galeri Kegiatan PKBM", "pkbmGallery", "primary");
     }
 
-    // --- 5. TABEL STATISTIK (Update: 2 Kolom Simetris) ---
+    // --- 5. TABEL STATISTIK ---
     html += `
     <h4 class="fw-bold text-center text-dark mb-4 mt-5" data-aos="fade-up">Statistik Tenaga Kependidikan</h4>
     
@@ -1835,13 +1833,6 @@ function renderPKBM(list) {
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <h5 class="fw-bold text-primary m-0"><i class="fas fa-chart-line me-2"></i>Grafik Data Warga Belajar</h5>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <div id="filterKategoriContainer" style="display: block;">
-                            <select id="filterKategoriPKBM" class="form-select form-select-sm border-secondary fw-bold" style="width: auto; min-width: 120px;">
-                                <option value="semua">Tampilkan Semua</option>
-                                <option value="siswa">Hanya Siswa Aktif</option>
-                                <option value="lulusan">Hanya Lulusan</option>
-                            </select>
-                        </div>
                         <select id="filterTahunPKBM" class="form-select form-select-sm border-primary text-primary fw-bold" style="width: auto; min-width: 140px;">
                             <option value="all">Semua Tahun</option>
                         </select>
@@ -1888,29 +1879,20 @@ function renderPKBM(list) {
         }
     };
 
-// --- 7. LOGIKA DATA UNTUK GRAFIK (FILTERING) ---
-    // Skip baris pertama (index 0) dan ambil 5 baris berikutnya
+    // --- 7. LOGIKA DATA UNTUK GRAFIK ---
     const filteredListForChart = list.slice(1, 6);
-
     let mainChartInstance = null;
     const selectFilterTahun = document.getElementById('filterTahunPKBM');
-    const selectFilterKat = document.getElementById('filterKategoriPKBM');
-    const containerFilterKat = document.getElementById('filterKategoriContainer');
 
     const colors = {
         siswa: {
             A: { bg: 'rgba(99, 102, 241, 0.8)', border: '#6366f1' },
             B: { bg: 'rgba(79, 70, 229, 0.6)', border: '#4f46e5' },
             C: { bg: 'rgba(129, 140, 248, 0.5)', border: '#818cf8' }
-        },
-        lulusan: {
-            A: { bg: 'rgba(245, 158, 11, 0.8)', border: '#f59e0b' },
-            B: { bg: 'rgba(234, 88, 12, 0.7)', border: '#ea580c' },
-            C: { bg: 'rgba(239, 68, 68, 0.6)', border: '#ef4444' }
         }
     };
 
-    const renderMainChart = (tahunVal, kategoriVal) => {
+    const renderMainChart = (tahunVal) => {
         const ctx = document.getElementById('chartSiswaLulus').getContext('2d');
         if (mainChartInstance) mainChartInstance.destroy();
 
@@ -1918,41 +1900,30 @@ function renderPKBM(list) {
         let datasets = [];
 
         if (tahunVal === 'all') {
-            // Gunakan data yang sudah difilter (index 1-5)
             labels = filteredListForChart.map(item => item.tahun);
-
+            
             const createDataset = (label, data, colorInfo) => ({
                 label: label, data: data, backgroundColor: colorInfo.bg,
                 borderColor: colorInfo.border, borderWidth: 1, borderRadius: 4
             });
 
-            if (kategoriVal === 'semua' || kategoriVal === 'siswa') {
-                datasets.push(createDataset('Paket A', filteredListForChart.map(i => parseInt(i.siswa_a)||0), colors.siswa.A));
-                datasets.push(createDataset('Paket B', filteredListForChart.map(i => parseInt(i.siswa_b)||0), colors.siswa.B));
-                datasets.push(createDataset('Paket C', filteredListForChart.map(i => parseInt(i.siswa_c)||0), colors.siswa.C));
-            }
-            if (kategoriVal === 'semua' || kategoriVal === 'lulusan') {
-                datasets.push(createDataset('Lulusan A', filteredListForChart.map(i => parseInt(i.lulus_a)||0), colors.lulusan.A));
-                datasets.push(createDataset('Lulusan B', filteredListForChart.map(i => parseInt(i.lulus_b)||0), colors.lulusan.B));
-                datasets.push(createDataset('Lulusan C', filteredListForChart.map(i => parseInt(i.lulus_c)||0), colors.lulusan.C));
-            }
+            datasets.push(createDataset('Paket A', filteredListForChart.map(i => parseInt(i.siswa_a)||0), colors.siswa.A));
+            datasets.push(createDataset('Paket B', filteredListForChart.map(i => parseInt(i.siswa_b)||0), colors.siswa.B));
+            datasets.push(createDataset('Paket C', filteredListForChart.map(i => parseInt(i.siswa_c)||0), colors.siswa.C));
         } else {
-            // Cari data hanya di dalam filteredListForChart
             const item = filteredListForChart.find(d => d.tahun == tahunVal);
             labels = ['Paket A (SD)', 'Paket B (SMP)', 'Paket C (SMA)'];
             if (item) {
                 datasets.push({
                     label: 'Siswa Aktif',
                     data: [parseInt(item.siswa_a)||0, parseInt(item.siswa_b)||0, parseInt(item.siswa_c)||0],
-                    backgroundColor: colors.siswa.A.bg, borderColor: colors.siswa.A.border, borderWidth: 1
-                });
-                datasets.push({
-                    label: 'Lulusan',
-                    data: [parseInt(item.lulus_a)||0, parseInt(item.lulus_b)||0, parseInt(item.lulus_c)||0],
-                    backgroundColor: colors.lulusan.A.bg, borderColor: colors.lulusan.A.border, borderWidth: 1
+                    backgroundColor: [colors.siswa.A.bg, colors.siswa.B.bg, colors.siswa.C.bg],
+                    borderColor: [colors.siswa.A.border, colors.siswa.B.border, colors.siswa.C.border],
+                    borderWidth: 1
                 });
             }
         }
+
         mainChartInstance = new Chart(ctx, {
             type: 'bar',
             data: { labels: labels, datasets: datasets },
@@ -1978,20 +1949,10 @@ function renderPKBM(list) {
         });
 
         selectFilterTahun.addEventListener('change', function() {
-            if (this.value === 'all') {
-                containerFilterKat.style.display = 'block';
-                renderMainChart('all', selectFilterKat.value);
-            } else {
-                containerFilterKat.style.display = 'none';
-                renderMainChart(this.value, 'semua');
-            }
+            renderMainChart(this.value);
         });
 
-        selectFilterKat.addEventListener('change', function() {
-            if (selectFilterTahun.value === 'all') renderMainChart('all', this.value);
-        });
-
-        renderMainChart('all', 'semua');
+        renderMainChart('all');
     }
 }
 
