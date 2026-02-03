@@ -1386,31 +1386,36 @@ function renderBerita(list) {
     if (loadingEl) loadingEl.style.display = 'none';
     
     if (!container || !list || list.length === 0) return;
+
+    // 1. Fungsi bantu untuk menangkap tanggal dari berbagai nama properti
+    const getValidDate = (item) => {
+        const raw = item.tanggal || item.Tanggal || item.date || item.Date || 0;
+        const d = new Date(raw);
+        return isNaN(d.getTime()) ? new Date(0) : d; // Jika tidak valid, lempar ke paling bawah
+    };
+
+    // 2. LOGIKA SORTING: Urutkan dari milidetik terbesar (terbaru) ke terkecil
+    const sorted = list.slice().sort((a, b) => {
+        return getValidDate(b).getTime() - getValidDate(a).getTime();
+    });
+
+    // 3. Ambil 6 berita teratas setelah di-sort
+    const latest = sorted.slice(0, 6);
     
-    // Ambil 6 berita terbaru
-    const latest = list.slice().reverse().slice(0, 6);
     let html = '';
-    
     latest.forEach((item, idx) => {
-        // 1. Gambar
+        // Gambar
         let img = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "") || "https://via.placeholder.com/400x250?text=No+Image";
         
-        // 2. LOGIKA TANGGAL YANG AMAN
-        let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
-        let dateStr = rawDate; 
+        // Format Tanggal untuk Tampilan
+        let dateObj = getValidDate(item);
+        let dateStr = dateObj.getTime() !== 0 
+            ? dateObj.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})
+            : "Baru saja";
 
-        if (rawDate) {
-            const d = new Date(rawDate);
-            if (!isNaN(d.getTime())) {
-                dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
-            }
-        }
-
-        // 3. Judul & Ringkasan
+        // Judul & Ringkasan
         let judul = item.judul || item.Judul || "Tanpa Judul";
         let ringkasan = item.ringkasan || item.Ringkasan || item.deskripsi || "";
-        
-        // Buat slug untuk URL
         let judulUrl = encodeURIComponent(slugify(judul));
 
         html += `
@@ -1443,26 +1448,37 @@ function renderBeritaFull(list) {
         container.innerHTML = '<div class="col-12 text-center">Belum ada berita.</div>'; 
         return; 
     }
+
+    // 1. LOGIKA SORTING (Urut Berdasarkan Tanggal Terbaru)
+    const sortedList = list.slice().sort((a, b) => {
+        // Ambil nilai tanggal dari berbagai kemungkinan properti
+        let dateA = new Date(a.tanggal || a.Tanggal || a.date || a.Date || 0);
+        let dateB = new Date(b.tanggal || b.Tanggal || b.date || b.Date || 0);
+        
+        // Kembalikan selisih untuk pengurutan descending (terbaru di atas)
+        return dateB - dateA;
+    });
     
-    const reversedList = list.slice().reverse();
     let html = '';
     
-    reversedList.forEach((item, idx) => {
-        // 1. Gambar
+    // 2. Gunakan sortedList, bukan reversedList
+    sortedList.forEach((item, idx) => {
+        // Gambar
         let img = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "") || "https://via.placeholder.com/400x250?text=No+Image";
         
-        // 2. LOGIKA TANGGAL YANG AMAN
+        // LOGIKA TAMPILAN TANGGAL
         let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
         let dateStr = rawDate; 
 
         if (rawDate) {
             const d = new Date(rawDate);
             if (!isNaN(d.getTime())) {
+                // Format Indonesia: 03 Feb 2026
                 dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
             }
         }
         
-        // 3. Judul & Ringkasan
+        // Judul & Ringkasan
         let judul = item.judul || item.Judul || "Tanpa Judul";
         let ringkasan = item.ringkasan || item.Ringkasan || item.deskripsi || "";
         
@@ -1488,7 +1504,6 @@ function renderBeritaFull(list) {
     });
     container.innerHTML = html;
 }
-
 /* --- FUNGSI RENDER DETAIL (HALAMAN BACASELENGKAPNYA) --- */
 function renderDetailBerita(list) {
     // Ambil parameter 'judul' dari URL
