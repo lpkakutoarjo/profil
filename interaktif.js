@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbxyeYGEIJ3MHytVXioIdgYXBJOvsWhinjRsVR4nbnczX0NxveaADMI-DaXhg6sUjfyo/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbzwxVv3hpgos4acksrSbjjSsvKBxKKwLb_EC8OWcEGoAR9LERsFuRfMGf7NOpm27_NW/exec'; 
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -147,7 +147,7 @@ function renderByPage(data) {
     // Render Elemen Sidebar (Selalu muncul jika elemen ada)
     if (document.getElementById('pejabat-container')) renderPejabat(data.pejabat);
     if (document.getElementById('sidebar-video-container')) renderVideoSidebar(data.video);
-
+    
     // Deteksi Halaman Aktif
     const mainEl = document.querySelector('main');
     const pageId = mainEl ? mainEl.getAttribute('data-page') : 'home';
@@ -157,9 +157,17 @@ function renderByPage(data) {
         case 'home':
             renderBanner(data.banner);
             renderBerita(data.berita);
+           renderMultiGaugeLogic(
+        data.penyerapananggaran, 
+        data.ikpa, 
+        data.smart
+    ); // <--- Tambahkan ini agar penyerapananggaran tampil
             break;
         case 'pencarian':
             performSearch(data);
+            break;
+        case 'penyerapananggaran':
+            renderCapaianKinerja(data.penyerapananggaran, data.ikpa, data.smart);
             break;
         case 'sejarah':
             renderSejarah(data.sejarah);
@@ -1069,6 +1077,329 @@ function renderSejarah(list) {
     container.innerHTML = htmlOutput;
     
     if (loadingElement) loadingElement.style.display = 'none';
+}
+
+let activeCharts = {}; // Tetap dipertahankan jika variabel ini dipanggil di tempat lain
+
+function renderMultiGaugeLogic(listPenyerapan, listIKPA, listSMART) {
+    const filterArea = document.getElementById('filter-area');
+    if (!filterArea) return;
+
+    // 1. Pembersihan Data
+    const clean = (data) => (data || []).map(item => {
+        let obj = {};
+        for (let key in item) obj[key.toString().toLowerCase().trim()] = item[key];
+        return obj;
+    });
+
+    const dataP = clean(listPenyerapan);
+    const dataI = clean(listIKPA);
+    const dataS = clean(listSMART);
+
+    const months = ["jan", "feb", "mar", "apr", "mei", "jun", "jul", "agu", "sep", "okt", "nov", "des"];
+    const years = [...new Set(dataP.map(d => d.tahun))].sort((a, b) => b - a);
+
+    const now = new Date();
+    const currentYear = now.getFullYear().toString();
+    const currentMonthIdx = now.getMonth(); 
+    const currentMonthKey = months[currentMonthIdx];
+
+    // 2. Inisiasi Filter Dropdown
+    if (!document.getElementById('selTahun')) {
+        filterArea.innerHTML = `
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <select id="selTahun" class="form-select form-select-sm rounded-3 shadow-sm" style="font-size:11px;">
+                        ${years.map(y => `<option value="${y}" ${y == currentYear ? 'selected' : ''}>${y}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="col-6">
+                    <select id="selBulan" class="form-select form-select-sm rounded-3 shadow-sm" style="font-size:11px;">
+                        ${months.map((m, i) => `<option value="${m}" ${i == currentMonthIdx ? 'selected' : ''}>${m.toUpperCase()}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+            <style>
+                .select-no-arrow:disabled {
+                    background-image: none !important;
+                    background-color: #f8f9fa;
+                    cursor: not-allowed;
+                    opacity: 0.8;
+                }
+            </style>
+        `;
+
+        const elTahun = document.getElementById('selTahun');
+        const elBulan = document.getElementById('selBulan');
+
+        const updateFilterState = () => {
+            if (elTahun.value !== currentYear) {
+                elBulan.value = "des";
+                elBulan.disabled = true;
+                elBulan.classList.add('select-no-arrow');
+            } else {
+                elBulan.disabled = false;
+                elBulan.classList.remove('select-no-arrow');
+                elBulan.value = currentMonthKey;
+            }
+        };
+
+        updateFilterState();
+
+        elTahun.addEventListener('change', () => {
+            updateFilterState();
+            refreshData();
+        });
+        
+        elBulan.addEventListener('change', () => refreshData());
+    }
+
+    // 3. Fungsi Update Indikator (Gaya Bensin Matic)
+    const updateFuelBar = (barId, textId, value) => {
+        const barElement = document.getElementById(barId);
+        const textElement = document.getElementById(textId);
+        
+        if (!barElement) return;
+
+        // Logika Warna Dinamis
+        const getColor = (val) => {
+            if (val <= 0) return '#dee2e6';
+            if (val < 50) return '#ff4d4d'; // Merah (E)
+            if (val < 85) return '#ffcc00'; // Kuning
+            return '#2ecc71';               // Hijau (F)
+        };
+
+        const color = getColor(value);
+
+        // Animasi lebar bar
+        barElement.style.width = value + '%';
+        barElement.style.backgroundColor = color;
+        
+        // Tambahkan efek bayangan cahaya (glow) agar lebih seperti LED
+        barElement.style.boxShadow = value > 0 ? `0 0 10px ${color}44` : 'none';
+
+        // Update Teks Persentase
+        if (textElement) {
+            textElement.style.color = color;
+            if (value === 0) {
+                textElement.innerHTML = `<small style="color: #6c757d; font-size:10px;">N/A</small>`;
+            } else {
+                textElement.innerText = value.toFixed(1) + '%';
+            }
+        }
+    };
+
+    // 4. Fungsi Refresh Data
+    const refreshData = () => {
+        const elTahun = document.getElementById('selTahun');
+        const elBulan = document.getElementById('selBulan');
+        if (!elTahun || !elBulan) return;
+
+        const selectedYear = elTahun.value;
+        const selectedMonthKey = elBulan.value;
+        const activeMonthIndex = months.indexOf(selectedMonthKey);
+
+        const rowP = dataP.find(d => d.tahun == selectedYear);
+        const rowI = dataI.find(d => d.tahun == selectedYear);
+        const rowS = dataS.find(d => d.tahun == selectedYear);
+
+        const pagu = rowP ? (parseFloat(rowP.pagu) || 0) : 0;
+
+        // Hitung Akumulasi Penyerapan
+        let totalP = 0;
+        if (rowP) {
+            for (let i = 0; i <= activeMonthIndex; i++) {
+                totalP += parseFloat(rowP[months[i]]) || 0;
+            }
+        }
+
+        const valP = Math.min(pagu > 0 ? (totalP / pagu) * 100 : 0, 100);
+        const valI = rowI ? Math.min(parseFloat(rowI[selectedMonthKey]) || 0, 100) : 0;
+        const valS = rowS ? Math.min(parseFloat(rowS[selectedMonthKey]) || 0, 100) : 0;
+
+        // Panggil Fungsi Update Bar
+        updateFuelBar('barPenyerapan', 'vPersenPenyerapan', valP);
+        updateFuelBar('barIKPA', 'vPersenIKPA', valI);
+        updateFuelBar('barSMART', 'vPersenSMART', valS);
+        
+        // Update Tampilan Pagu jika ada
+        if (document.getElementById('display-pagu')) {
+            document.getElementById('display-pagu').innerText = new Intl.NumberFormat('id-ID', { 
+                style: 'currency', currency: 'IDR', minimumFractionDigits: 0 
+            }).format(pagu);
+        }
+    };
+
+    // Jalankan pertama kali
+    refreshData();
+}
+function renderCapaianKinerja(listPenyerapan, listIKPA, listSMART) {
+    if (typeof Chart === 'undefined') return;
+
+    const canvas = document.getElementById('chartGarisKinerja');
+    if (!canvas) return;
+
+    const clean = (data) => (data || []).map(item => {
+        let obj = {};
+        for (let key in item) obj[key.trim().toLowerCase()] = item[key];
+        return obj;
+    });
+
+    const dataP = clean(listPenyerapan);
+    const dataI = clean(listIKPA);
+    const dataS = clean(listSMART);
+
+    const monthsKey = ["jan", "feb", "mar", "apr", "mei", "jun", "jul", "agu", "sep", "okt", "nov", "des"];
+    const monthsLabel = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    
+    const currentYear = new Date().getFullYear();
+    const allYears = [...dataP, ...dataI, ...dataS].map(d => d.tahun);
+    const years = [...new Set(allYears)].filter(y => y).sort((a, b) => b - a);
+
+    // --- RENDER DROPDOWN & AREA PAGU ---
+    const filterArea = document.getElementById('filter-area');
+    if (filterArea && !document.getElementById('selTahun')) {
+        filterArea.innerHTML = `
+            <div class="form-floating shadow-sm mb-2">
+                <select id="selTahun" class="form-select border-0 fw-bold">
+                    ${years.map(y => `<option value="${y}">${y}</option>`).join('')}
+                </select>
+                <label class="small text-muted fw-bold">Tahun Anggaran</label>
+            </div>
+            <div id="paguContainer" class="text-end px-1">
+                <small class="text-muted d-block" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Total Pagu Anggaran</small>
+                <span id="textPagu" class="fw-bold text-primary" style="font-size: 1.1rem;">Rp 0</span>
+            </div>`;
+        document.getElementById('selTahun').addEventListener('change', () => updateChart());
+    }
+
+    if (!window.myLineChart) window.myLineChart = null;
+
+    const updateChart = () => {
+        const selectedYear = parseInt(document.getElementById('selTahun')?.value || years[0]);
+        const isCurrentYear = selectedYear === currentYear;
+
+        const rowP = dataP.find(d => d.tahun == selectedYear);
+        const rowI = dataI.find(d => d.tahun == selectedYear);
+        const rowS = dataS.find(d => d.tahun == selectedYear);
+
+        // Update Tampilan Pagu
+        const paguVal = rowP ? parseFloat(rowP.pagu) : 0;
+        const textPagu = document.getElementById('textPagu');
+        if (textPagu) {
+            textPagu.innerText = paguVal > 0 
+                ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(paguVal)
+                : 'Rp 0';
+        }
+
+        // Filter Sumbu X
+        const activeIndices = monthsKey.map((m, i) => {
+            const hasData = (rowP && parseFloat(rowP[m]) > 0) || (rowI && parseFloat(rowI[m]) > 0) || (rowS && parseFloat(rowS[m]) > 0);
+            return hasData ? i : -1;
+        }).filter(idx => idx !== -1);
+
+        // Pengolahan Data
+        const getPenyerapanSeries = (row) => {
+            if (!row) return monthsKey.map(() => 0);
+            const pagu = parseFloat(row.pagu) || 1;
+            let accumulated = 0;
+            return monthsKey.map(m => {
+                accumulated += parseFloat(row[m]) || 0;
+                return parseFloat(((accumulated / pagu) * 100).toFixed(2));
+            });
+        };
+
+        const seriesP = getPenyerapanSeries(rowP);
+        const seriesI = monthsKey.map(m => rowI ? parseFloat(rowI[m]) || 0 : 0);
+        const seriesS = monthsKey.map(m => rowS ? parseFloat(rowS[m]) || 0 : 0);
+
+        // Update KPI Cards
+        const updateKPI = (id, dataArray) => {
+            const lastVal = [...dataArray].reverse().find(v => v > 0) || 0;
+            const el = document.getElementById(id);
+            if (el) {
+                if (lastVal > 0) {
+                    el.innerText = lastVal + '%';
+                } else {
+                    el.innerHTML = `<span style="font-size: 11px; color: #6c757d; letter-spacing: 0.5px; font-style: italic; display: block; margin-top: 5px;">Data belum tersedia</span>`;
+                }
+            }
+        };
+        updateKPI('statPenyerapan', seriesP);
+        updateKPI('statIKPA', seriesI);
+        updateKPI('statSMART', seriesS);
+
+let chartConfig = {
+    type: isCurrentYear ? 'line' : 'bar',
+    data: {}, // Data akan diisi di blok if/else
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}%` }
+            }
+        },
+        scales: {
+            y: { 
+                beginAtZero: true, 
+                max: 100, 
+                ticks: { callback: v => v + '%' },
+                grid: {
+                    drawBorder: false,
+                    color: 'rgba(0, 0, 0, 0.05)'
+                }
+            },
+            x: { 
+                // KUNCI 1: Memberikan ruang di awal dan akhir sumbu X
+                offset: true, 
+                grid: { 
+                    display: true, 
+                    // KUNCI 2: Membuat garis vertikal menjadi putus-putus
+                    borderDash: [5, 5], 
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    drawTicks: false
+                },
+                ticks: {
+                    padding: 10
+                }
+            }
+        }
+    }
+};
+
+// Logika pengisian data (tetap sama dengan milik Anda)
+if (isCurrentYear) {
+    chartConfig.data = {
+        labels: activeIndices.map(i => monthsLabel[i]),
+        datasets: [
+            { label: 'IKPA', data: activeIndices.map(i => seriesI[i]), borderColor: '#0d6efd', tension: 0.2, pointRadius: 4 },
+            { label: 'SMART', data: activeIndices.map(i => seriesS[i]), borderColor: '#f1c40f', tension: 0.2, pointRadius: 4 },
+            { label: 'Penyerapan Anggaran', data: activeIndices.map(i => seriesP[i]), borderColor: '#198754', backgroundColor: 'rgba(25, 135, 84, 0.1)', fill: true, tension: 0.2, pointRadius: 4 }
+        ]
+    };
+} else {
+    chartConfig.data = {
+        labels: ['Penyerapan', 'IKPA', 'SMART'],
+        datasets: [{
+            label: `Persentase Akhir Tahun ${selectedYear}`,
+            data: [
+                [...seriesP].reverse().find(v => v > 0) || 0,
+                [...seriesI].reverse().find(v => v > 0) || 0,
+                [...seriesS].reverse().find(v => v > 0) || 0
+            ],
+            backgroundColor: ['#198754', '#0d6efd', '#f1c40f'],
+            borderRadius: 8,
+            barPercentage: 0.4
+        }]
+    };
+}
+
+        if (window.myLineChart) window.myLineChart.destroy();
+        window.myLineChart = new Chart(canvas.getContext('2d'), chartConfig);
+    };
+
+    updateChart();
 }
 function renderPejabat(list) {
     const container = document.getElementById('pejabat-container');
