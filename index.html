@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="desain.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta name="description" content="Website Resmi LPKA Kelas I Kutoarjo, Kementerian Imigrasi dan Pemasyarakatan. Informasi layanan kunjungan, berita terkini, dan profil instansi.">
 <meta name="keywords" content="LPKA Kutoarjo, Lembaga Pembinaan Khusus Anak, Kemenimipas, Pemasyarakatan, Berita LPKA, Purworejo">
 <meta name="author" content="Humas LPKA Kelas I Kutoarjo">
@@ -49,6 +50,50 @@
   ]
 }
 </script>
+<script>
+    function createGauge(id, value, color) {
+        const ctx = document.getElementById(id).getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [value, 100 - value],
+                    backgroundColor: [color, '#e9ecef'],
+                    borderWidth: 0,
+                    circumference: 180,
+                    rotation: 270,
+                    cutout: '80%',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                aspectRatio: 1.5,
+                plugins: {
+                    tooltip: { enabled: false },
+                    legend: { display: false }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+</script>
+<style>
+    .fuel-gauge-container {
+        height: 12px;
+        background: #eee;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid #ddd;
+    }
+    .fuel-bar {
+        height: 100%;
+        width: 0%;
+        transition: width 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67), background-color 1s;
+        border-radius: 20px;
+    }
+</style>
 </head>
 <body>
 
@@ -145,208 +190,249 @@
         </div>
     </nav>
 
-    <div id="main-view">
-        
-        <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
-            <div class="carousel-inner" id="banner-container">
-                <div class="carousel-item active">
-                    <div style="height:600px; background:#ddd; display:flex; align-items:center; justify-content:center;">
-                        <div class="spinner-border text-secondary" role="status"></div>
-                    </div>
+<div id="main-view">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-inner" id="banner-container">
+            <div class="carousel-item active">
+                <div style="height:600px; background:#ddd; display:flex; align-items:center; justify-content:center;">
+                    <div class="spinner-border text-secondary" role="status"></div>
                 </div>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            </button>
         </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+    </div>
 
-        <div class="container my-5">
-            <div class="row g-4">
-                <div class="col-lg-8" id="berita-section">
-                    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2" style="border-color: var(--primary-blue)!important;" data-aos="fade-right">
-                        <h3 class="fw-bold text-primary m-0"><i class="fas fa-newspaper me-2"></i> Berita Terkini</h3>
-                        <a href="berita.html" class="text-muted small text-decoration-none">Lihat Arsip <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                    <div id="loading-news" class="row">
-                        <div class="col-md-6 mb-4"><div class="card h-100 border-0 shadow-sm"><div style="height:200px; background:#eee;"></div></div></div>
-                    </div>
-                    <div class="row" id="news-container"></div>
+    <div class="container my-5">
+        <div class="row g-4">
+            <div class="col-lg-8" id="berita-section">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2" style="border-color: var(--primary-blue)!important;" data-aos="fade-right">
+                    <h3 class="fw-bold text-primary m-0"><i class="fas fa-newspaper me-2"></i> Berita Terkini</h3>
+                    <a href="berita.html" class="text-muted small text-decoration-none">Lihat Arsip <i class="fas fa-chevron-right"></i></a>
                 </div>
-                
-                <div class="col-lg-4">
-                    <div class="sticky-sidebar">
-                        
-                        <div class="sidebar-widget mb-4" id="pejabat-section" data-aos="fade-left" data-aos-delay="100">
-                            <h5 class="fw-bold mb-4 border-start border-4 border-warning ps-3">Kepala LPKA Kelas I Kutoarjo</h5>
-                            <div id="pejabat-container"><div class="text-center text-muted">Memuat data...</div></div>
-                        </div>
-
-                        <div class="sidebar-widget" id="video-section" data-aos="fade-left" data-aos-delay="200">
-                            <h5 class="fw-bold mb-3 border-start border-4 border-danger ps-3">Galeri Video</h5>
-                            <div id="sidebar-video-container" class="d-flex flex-column">
-                                <div class="text-center text-muted small">Memuat video...</div>
-                            </div>
-                            <div class="text-center mt-2">
-                                 <a href="https://youtube.com" target="_blank" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-bold small">Lihat Channel <i class="fab fa-youtube ms-1"></i></a>
-                            </div>
-                        </div>
-
-                    </div>
+                <div id="loading-news" class="row">
+                    <div class="col-md-6 mb-4"><div class="card h-100 border-0 shadow-sm"><div style="height:200px; background:#eee;"></div></div></div>
                 </div>
+                <div class="row" id="news-container"></div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="sticky-sidebar">
+                    <div class="sidebar-widget mb-4" id="pejabat-section" data-aos="fade-left" data-aos-delay="100">
+                        <h5 class="fw-bold mb-4 border-start border-4 border-warning ps-3">Kepala LPKA Kelas I Kutoarjo</h5>
+                        <div id="pejabat-container"><div class="text-center text-muted">Memuat data...</div></div>
+                    </div>
 
-                <div class="bg-white py-5 position-relative" id="layanan-section" style="border-top: 1px solid #eee;">
-                    <div class="container">
-                        <div class="text-center mb-5" data-aos="fade-up">
-                            <span class="text-warning fw-bold text-uppercase ls-2">Fasilitas & Akses</span>
-                            <h3 class="fw-bold text-primary display-6">Layanan Publik</h3>
-                            <div style="width: 60px; height: 4px; background: var(--accent-gold); margin: 10px auto;"></div>
+                    <div class="sidebar-widget mb-4" id="penyerapananggaran-section">
+                        <h5 class="fw-bold mb-4 border-start border-4 border-success ps-3">Kinerja Anggaran</h5>
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-2 rounded-3">
+                                    <div>
+                                        <small class="text-muted d-block" style="font-size: 10px;">PAGU ANGGARAN</small>
+                                        <span id="display-pagu" class="fw-bold text-dark" style="font-size: 13px;"></span>
+                                    </div>
+                                    <div class="text-end">
+                                        <span id="display-tahun" class="badge rounded-pill bg-success px-3"></span>
+                                    </div>
+                                </div>
+                                
+                                <div id="filter-area" class="mb-4"></div>
+
+                                <div class="mb-4" style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                                <small class="text-uppercase fw-bold text-muted" style="font-size: 10px;">Penyerapan Anggaran</small>
+                                                <span class="fw-bold" id="vPersenPenyerapan" style="font-size: 14px;">0%</span>
+                                            </div>
+                                            <div class="fuel-gauge-container">
+                                                <div id="barPenyerapan" class="fuel-bar"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                                <small class="text-uppercase fw-bold text-muted" style="font-size: 10px;">Penilaian IKPA</small>
+                                                <span class="fw-bold" id="vPersenIKPA" style="font-size: 14px;">0%</span>
+                                            </div>
+                                            <div class="fuel-gauge-container">
+                                                <div id="barIKPA" class="fuel-bar"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-between align-items-end mb-1">
+                                                <small class="text-uppercase fw-bold text-muted" style="font-size: 10px;">Nilai SMART DJA</small>
+                                                <span class="fw-bold" id="vPersenSMART" style="font-size: 14px;">0%</span>
+                                            </div>
+                                            <div class="fuel-gauge-container">
+                                                <div id="barSMART" class="fuel-bar"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid mt-2">
+                                        <a href="penyerapananggaran.html" class="btn btn-success btn-sm rounded-3 shadow-sm py-2" style="font-size: 11px; font-weight: 600;">
+                                            <i class="fas fa-chart-line me-1"></i> Lihat Capaian Kinerja
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="row g-4 justify-content-center">
-                            
-                            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="0">
-                                <a href="pkbm.html" class="text-decoration-none text-dark">
-                                    <div class="service-box">
-                                        <div class="service-icon"><i class="fas fa-graduation-cap"></i></div>
-                                        <h5 class="fw-bold">Layanan Pendidikan</h5>
-                                        <p class="text-muted small mt-2">Program pendidikan kesetaraan (PKBM) Paket A, B, dan C.</p>
-                                    </div>
-                                </a>
-                            </div>
-                
-                            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="100">
-                                <a href="klinik.html" class="text-decoration-none text-dark">
-                                    <div class="service-box">
-                                        <div class="service-icon"><i class="fas fa-stethoscope"></i></div>
-                                        <h5 class="fw-bold">Layanan Kesehatan</h5>
-                                        <p class="text-muted small mt-2">Fasilitas klinik pratama dan pemeriksaan kesehatan rutin.</p>
-                                    </div>
-                                </a>
-                            </div>
-                
-                            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="200">
-                                <a href="kunjungan.html" class="text-decoration-none text-dark">
-                                    <div class="service-box">
-                                        <div class="service-icon"><i class="fas fa-user-friends"></i></div>
-                                        <h5 class="fw-bold">Layanan Kunjungan</h5>
-                                        <p class="text-muted small mt-2">Info jadwal & tata tertib kunjungan tatap muka.</p>
-                                    </div>
-                                </a>
-                            </div>
-                    
-                            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="300">
-                                <a href="reintegrasi.html" class="text-decoration-none text-dark">
-                                    <div class="service-box">
-                                        <div class="service-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                                        <h5 class="fw-bold">Reintegrasi Sosial</h5>
-                                        <p class="text-muted small mt-2">Layanan PB, CB, CMB dan Asimilasi.</p>
-                                    </div>
-                                </a>
-                            </div>
-                    
-                            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="400">
-                                <a href="pengaduan.html" class="text-decoration-none text-dark">
-                                    <div class="service-box">
-                                        <div class="service-icon"><i class="fas fa-headset"></i></div>
-                                        <h5 class="fw-bold">Pengaduan</h5>
-                                        <p class="text-muted small mt-2">Kanal pengaduan masyarakat yang responsif.</p>
-                                    </div>
-                                </a>
-                            </div>
+                    </div>
 
-                            <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="500">
-    <a href="javascript:void(0);" onclick="openDocPreview('Standar Operasional Prosedur', 'https://drive.google.com/file/d/1DLhcIZCZfBl3Rd2v9DkpgjFdfDHsLcsU/view?usp=drive_link')" class="text-decoration-none text-dark">
-        <div class="service-box">
-            <div class="service-icon"><i class="fas fa-book-reader"></i></div>
-            <h5 class="fw-bold">Standar Operasional Prosedur</h5>
-            <p class="text-muted small mt-2">Dokumen SOP untuk kegiatan operasional UPT.</p>
+                    <div class="sidebar-widget" id="video-section" data-aos="fade-left" data-aos-delay="200">
+                        <h5 class="fw-bold mb-3 border-start border-4 border-danger ps-3">Galeri Video</h5>
+                        <div id="sidebar-video-container" class="d-flex flex-column">
+                            <div class="text-center text-muted small">Memuat video...</div>
+                        </div>
+                        <div class="text-center mt-2">
+                             <a href="https://youtube.com" target="_blank" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-bold small">Lihat Channel <i class="fab fa-youtube ms-1"></i></a>
+                        </div>
+                    </div>
+                </div> </div> </div> </div> <div class="bg-white py-5 position-relative" id="layanan-section" style="border-top: 1px solid #eee;">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="text-warning fw-bold text-uppercase ls-2">Fasilitas & Akses</span>
+                <h3 class="fw-bold text-primary display-6">Layanan Publik</h3>
+                <div style="width: 60px; height: 4px; background: var(--accent-gold); margin: 10px auto;"></div>
+            </div>
+            
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="0">
+                    <a href="pkbm.html" class="text-decoration-none text-dark">
+                        <div class="service-box">
+                            <div class="service-icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h5 class="fw-bold">Layanan Pendidikan</h5>
+                            <p class="text-muted small mt-2">Program pendidikan kesetaraan (PKBM) Paket A, B, dan C.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="100">
+                    <a href="klinik.html" class="text-decoration-none text-dark">
+                        <div class="service-box">
+                            <div class="service-icon"><i class="fas fa-stethoscope"></i></div>
+                            <h5 class="fw-bold">Layanan Kesehatan</h5>
+                            <p class="text-muted small mt-2">Fasilitas klinik pratama dan pemeriksaan kesehatan rutin.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="200">
+                    <a href="kunjungan.html" class="text-decoration-none text-dark">
+                        <div class="service-box">
+                            <div class="service-icon"><i class="fas fa-user-friends"></i></div>
+                            <h5 class="fw-bold">Layanan Kunjungan</h5>
+                            <p class="text-muted small mt-2">Info jadwal & tata tertib kunjungan tatap muka.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="300">
+                    <a href="reintegrasi.html" class="text-decoration-none text-dark">
+                        <div class="service-box">
+                            <div class="service-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                            <h5 class="fw-bold">Reintegrasi Sosial</h5>
+                            <p class="text-muted small mt-2">Layanan PB, CB, CMB dan Asimilasi.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="400">
+                    <a href="pengaduan.html" class="text-decoration-none text-dark">
+                        <div class="service-box">
+                            <div class="service-icon"><i class="fas fa-headset"></i></div>
+                            <h5 class="fw-bold">Pengaduan</h5>
+                            <p class="text-muted small mt-2">Kanal pengaduan masyarakat yang responsif.</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-lg-4" data-aos="zoom-in" data-aos-delay="500">
+                    <a href="javascript:void(0);" onclick="openDocPreview('Standar Operasional Prosedur', 'https://drive.google.com/file/d/1DLhcIZCZfBl3Rd2v9DkpgjFdfDHsLcsU/view?usp=drive_link')" class="text-decoration-none text-dark">
+                        <div class="service-box">
+                            <div class="service-icon"><i class="fas fa-book-reader"></i></div>
+                            <h5 class="fw-bold">Standar Operasional Prosedur</h5>
+                            <p class="text-muted small mt-2">Dokumen SOP untuk kegiatan operasional UPT.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
-    </a>
-</div>
-                
-<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl"> <div class="modal-content">
+    </div>
+</div> <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl"> 
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="modalTitle">Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0" style="height: 80vh;"> <iframe id="docFrame" src="" width="100%" height="100%" style="border: none;"></iframe>
+            <div class="modal-body p-0" style="height: 80vh;"> 
+                <iframe id="docFrame" src="" width="100%" height="100%" style="border: none;"></iframe>
             </div>
         </div>
     </div>
 </div>
 
-                        </div>
+<footer id="kontak-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="d-flex align-items-center mb-4">
+                    <img src="image/logo1.png" alt="Logo" class="footer-logo">
+                    <div class="ms-3">
+                        <h5 class="fw-bold mb-0">LPKA KELAS I KUTOARJO</h5>
+                        <small class="fw-bold mb-0">KEMENTERIAN IMIGRASI DAN PEMASYARAKATAN</small>
                     </div>
+                </div>
+                <ul class="list-unstyled contact-list">
+                    <li><i class="fas fa-map-marker-alt"></i><span>Jl. P. Diponegoro No.34, Kutoarjo, Kabupaten Purworejo, Jawa Tengah</span></li>
+                    <li><i class="fas fa-phone-alt"></i><span>(0275) 641011</span></li>
+                    <li><i class="fas fa-envelope"></i><span>lpakutoarjo@gmail.com</span></li>
+                </ul>
+                <div class="mt-4" style="display: flex; align-items: center; gap: 15px;">
+                    <a href="https://www.facebook.com/lpka.kutoarjo.5" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://x.com/LPKA_Kutoarjo" class="social-btn" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.instagram.com/lpkakutoarjo?igsh=bjFueHMwMHlucW1y" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="https://youtube.com/@humaslpkaklasikutoarjo9680?si=jGbJePA_foB80hrW" class="social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">LINK TERKAIT</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="https://kemenimipas.go.id">Kementerian Imigrasi & Pemasyarakatan</a></li>
+                    <li class="mb-2"><a href="https://www.ditjenpas.go.id">Direktorat Jenderal Pemasyarakatan</a></li>
+                    <li class="mb-2"><a href="#">Kantor Wilayah Jawa Tengah</a></li>
+                    <li class="mb-2"><a href="https://itjen.kemenimipas.go.id">Inspektorat Jenderal</a></li>
+                    <li class="mb-2"><a href="https://bpsdm.kemenimipas.go.id">BPSDM Kemenimipas</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">JELAJAHI</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="index.html" onclick="showHome()">Beranda</a></li>
+                    <li class="mb-2"><a href="pejabat.html" onclick="openPejabatFull()">Profil Pejabat</a></li>
+                    <li class="mb-2"><a href="struktur.html" onclick="openStruktur()">Struktur Organisasi</a></li>
+                    <li class="mb-2"><a href="#layanan-section">Layanan Publik</a></li>
+                    <li class="mb-2"><a href="#berita-section">Berita & Kegiatan</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">LOKASI KAMI</h6>
+                <div class="ratio ratio-16x9 shadow-sm rounded-4 overflow-hidden border border-secondary">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3954.269342790938!2d109.9113643735773!3d-7.761214076973955!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a935427f7f32b%3A0xc069cc882415d487!2sLPKA%20Kelas%20I%20Kutoarjo!5e0!3m2!1sid!2sid!4v1708412345678" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                 </div>
             </div>
         </div>
-    </main>
 
-    <footer id="kontak-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="0">
-                    <div class="d-flex align-items-center mb-4">
-                        <img src="image/logo1.png" alt="Logo" class="footer-logo">
-                        <div class="ms-3">
-                            <h5 class="fw-bold mb-0">LPKA KELAS I KUTOARJO</h5>
-                            <small class="fw-bold mb-0">KEMENTERIAN IMIGRASI DAN PEMASYARAKATAN</small>
-                        </div>
-                    </div>
-                    <ul class="list-unstyled contact-list">
-                        <li><i class="fas fa-map-marker-alt"></i><span>Jl. P. Diponegoro No.34, Kutoarjo, Kabupaten Purworejo, Jawa Tengah</span></li>
-                        <li><i class="fas fa-phone-alt"></i><span>(0275) 641011</span></li>
-                        <li><i class="fas fa-envelope"></i><span>lpakutoarjo@gmail.com</span></li>
-                    </ul>
-                    <div class="mt-4" style="display: flex; align-items: center; gap: 15px;">
-    <a href="https://www.facebook.com/lpka.kutoarjo.5" class="social-btn"><i class="fab fa-facebook-f"></i></a>
-    <a href="https://x.com/LPKA_Kutoarjo" class="social-btn" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
-    <a href="https://www.instagram.com/lpkakutoarjo?igsh=bjFueHMwMHlucW1y" class="social-btn"><i class="fab fa-instagram"></i></a>
-    <a href="https://youtube.com/@humaslpkaklasikutoarjo9680?si=jGbJePA_foB80hrW" class="social-btn"><i class="fab fa-youtube"></i></a>
-</div>
-                </div>
-
-                <div class="col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="100">
-                    <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">LINK TERKAIT</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="https://kemenimipas.go.id">Kementerian Imigrasi & Pemasyarakatan</a></li>
-                        <li class="mb-2"><a href="https://www.ditjenpas.go.id">Direktorat Jenderal Pemasyarakatan</a></li>
-                        <li class="mb-2"><a href="#">Kantor Wilayah Jawa Tengah</a></li>
-                        <li class="mb-2"><a href="https://itjen.kemenimipas.go.id">Inspektorat Jenderal</a></li>
-                        <li class="mb-2"><a href="https://bpsdm.kemenimipas.go.id">BPSDM Kemenimipas</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="200">
-                    <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">JELAJAHI</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="index.html" onclick="showHome()">Beranda</a></li>
-                        <li class="mb-2"><a href="pejabat.html" onclick="openPejabatFull()">Profil Pejabat</a></li>
-                        <li class="mb-2"><a href="struktur.html" onclick="openStruktur()">Struktur Organisasi</a></li>
-                        <li class="mb-2"><a href="#layanan-section">Layanan Publik</a></li>
-                        <li class="mb-2"><a href="#berita-section">Berita & Kegiatan</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-                    <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">LOKASI KAMI</h6>
-                    <div class="ratio ratio-16x9 shadow-sm rounded-4 overflow-hidden border border-secondary">
-                        <iframe src="https://maps.google.com/maps?q=LPKA+Kelas+I+Kutoarjo,+Jl.+P.+Diponegoro+No.34&t=&z=15&ie=UTF8&iwloc=&output=embed" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                Laman Resmi LPKA Kelas I Kutoarjo<br>
-                Kementerian Imigrasi dan Pemasyarakatan Republik Indonesia<br>
-                <span class="mt-2 d-block">Copyright © 2026 <span class="copyright-highlight">Peserta MagangHUB Kemnaker Batch II</span></span>
-            </div>
+        <div class="footer-bottom">
+            Laman Resmi LPKA Kelas I Kutoarjo<br>
+            Kementerian Imigrasi dan Pemasyarakatan Republik Indonesia<br>
+            <span class="mt-2 d-block">Copyright © 2026 <span class="copyright-highlight">Peserta MagangHUB Kemnaker Batch II</span></span>
         </div>
-    </footer>
+    </div>
+</footer>
 
 
     <div class="btn-float-container">
