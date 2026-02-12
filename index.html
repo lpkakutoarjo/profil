@@ -93,6 +93,57 @@
         transition: width 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67), background-color 1s;
         border-radius: 20px;
     }
+.marquee-outer-box {
+    display: flex;
+    background: white;
+    overflow: hidden;
+    border-bottom: 2px solid #ffc107;
+    height: 42px;
+    align-items: center;
+}
+
+.marquee-label-fixed {
+    background: #dc3545;
+    color: white;
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    z-index: 5;
+    white-space: nowrap;
+}
+
+.marquee-window {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+}
+
+.marquee-track {
+    display: flex;
+    white-space: nowrap;
+    /* Durasi 40 detik, sesuaikan jika ingin lebih cepat/lambat */
+    animation: seamless-loop 40s linear infinite;
+}
+
+/* Berhenti saat kursor menyentuh teks */
+.marquee-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes seamless-loop {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); } 
+}
+
+.text-blink {
+    animation: blink-effect 1s steps(5, start) infinite;
+}
+
+@keyframes blink-effect {
+    to { visibility: hidden; }
+}
 </style>
 </head>
 <body>
@@ -207,6 +258,18 @@
         </button>
     </div>
 
+<div class="marquee-outer-box shadow-sm">
+    <div class="marquee-label-fixed">
+        <i class="fas fa-bullhorn me-2 animate-flicker"></i> INFO
+    </div>
+    
+    <div class="marquee-window">
+        <div id="running-info-track" class="marquee-track">
+            <span>Memuat informasi layanan LPKA...</span>
+        </div>
+    </div>
+</div>
+
     <div class="container my-5">
         <div class="row g-4">
             <div class="col-lg-8" id="berita-section">
@@ -292,7 +355,11 @@
                              <a href="https://youtube.com" target="_blank" class="btn btn-sm btn-outline-danger w-100 rounded-pill fw-bold small">Lihat Channel <i class="fab fa-youtube ms-1"></i></a>
                         </div>
                     </div>
-                </div> </div> </div> </div> <div class="bg-white py-5 position-relative" id="layanan-section" style="border-top: 1px solid #eee;">
+                    
+                </div> </div> </div> </div> 
+                
+                
+                <div class="bg-white py-5 position-relative" id="layanan-section" style="border-top: 1px solid #eee;">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-up">
                 <span class="text-warning fw-bold text-uppercase ls-2">Fasilitas & Akses</span>
@@ -396,16 +463,23 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="100">
-                <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">LINK TERKAIT</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="https://kemenimipas.go.id">Kementerian Imigrasi & Pemasyarakatan</a></li>
-                    <li class="mb-2"><a href="https://www.ditjenpas.go.id">Direktorat Jenderal Pemasyarakatan</a></li>
-                    <li class="mb-2"><a href="#">Kantor Wilayah Jawa Tengah</a></li>
-                    <li class="mb-2"><a href="https://itjen.kemenimipas.go.id">Inspektorat Jenderal</a></li>
-                    <li class="mb-2"><a href="https://bpsdm.kemenimipas.go.id">BPSDM Kemenimipas</a></li>
-                </ul>
-            </div>
+<div class="col-lg-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+    <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">LINK TERKAIT</h6>
+    <ul class="list-unstyled">
+        <li class="mb-2">
+            <a href="https://kemenimipas.go.id" target="_blank" rel="noopener noreferrer">Kementerian Imigrasi & Pemasyarakatan</a>
+        </li>
+        <li class="mb-2">
+            <a href="https://www.ditjenpas.go.id" target="_blank" rel="noopener noreferrer">Direktorat Jenderal Pemasyarakatan</a>
+        </li>
+        <li class="mb-2">
+            <a href="https://itjen.kemenimipas.go.id" target="_blank" rel="noopener noreferrer">Inspektorat Jenderal Kemenimipas</a>
+        </li>
+        <li class="mb-2">
+            <a href="https://bpsdm.kemenimipas.go.id" target="_blank" rel="noopener noreferrer">BPSDM Kemenimipas</a>
+        </li>
+    </ul>
+</div>
 
             <div class="col-lg-2 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <h6 class="fw-bold text-uppercase mb-3 border-bottom border-warning pb-2 d-inline-block">JELAJAHI</h6>
