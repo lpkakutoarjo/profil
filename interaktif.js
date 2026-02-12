@@ -1743,7 +1743,7 @@ async function loadRunningText() {
             <div class="d-flex align-items-center">
                             <span class="mx-5 fw-bold text-dark"><i class="fas fa-newspaper text-success me-2"></i> BERITA TERBARU: <span class="text-success">${beritaTxt}</span></span>    
             <span class="mx-5 fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i> JADWAL KUNJUNGAN: <span class="text-primary">${jadwalClean}</span></span>
-                <span class="mx-5 fw-bold text-danger text-uppercase"><i class="fas fa-shield-alt me-2"></i> WASPADA PENIPUAN! Seluruh layanan pemasyarakatan (Remisi, PB, CB, CMB, dan Kunjungan) TIDAK DIPUNGUT BIAYA (GRATIS)</span>
+                <span class="mx-5 fw-bold text-danger text-uppercase"><i class="fas fa-shield-alt me-2"></i> WASPADA PENIPUAN! Seluruh layanan pemasyarakatan TIDAK DIPUNGUT BIAYA (GRATIS)</span>
             </div>
         `;
 
