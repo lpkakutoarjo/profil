@@ -1086,7 +1086,6 @@ function renderMultiGaugeLogic(listPenyerapan, listIKPA, listSMART) {
     const filterArea = document.getElementById('filter-area');
     if (!filterArea) return;
 
-    // 1. Pembersihan Data
     const clean = (data) => (data || []).map(item => {
         let obj = {};
         for (let key in item) obj[key.toString().toLowerCase().trim()] = item[key];
@@ -1102,136 +1101,152 @@ function renderMultiGaugeLogic(listPenyerapan, listIKPA, listSMART) {
 
     const now = new Date();
     const currentYear = now.getFullYear().toString();
-    const currentMonthIdx = now.getMonth(); 
+    const currentMonthIdx = now.getMonth();
     const currentMonthKey = months[currentMonthIdx];
 
-    // 2. Inisiasi Filter Dropdown
-    if (!document.getElementById('selTahun')) {
-        filterArea.innerHTML = `
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <select id="selTahun" class="form-select form-select-sm rounded-3 shadow-sm" style="font-size:11px;">
-                        ${years.map(y => `<option value="${y}" ${y == currentYear ? 'selected' : ''}>${y}</option>`).join('')}
-                    </select>
-                </div>
-                <div class="col-6">
-                    <select id="selBulan" class="form-select form-select-sm rounded-3 shadow-sm" style="font-size:11px;">
-                        ${months.map((m, i) => `<option value="${m}" ${i == currentMonthIdx ? 'selected' : ''}>${m.toUpperCase()}</option>`).join('')}
-                    </select>
-                </div>
-            </div>
-            <style>
-                .select-no-arrow:disabled {
-                    background-image: none !important;
-                    background-color: #f8f9fa;
-                    cursor: not-allowed;
-                    opacity: 0.8;
-                }
-            </style>
-        `;
-
-        const elTahun = document.getElementById('selTahun');
-        const elBulan = document.getElementById('selBulan');
-
-        const updateFilterState = () => {
-            if (elTahun.value !== currentYear) {
-                elBulan.value = "des";
-                elBulan.disabled = true;
-                elBulan.classList.add('select-no-arrow');
-            } else {
-                elBulan.disabled = false;
-                elBulan.classList.remove('select-no-arrow');
-                elBulan.value = currentMonthKey;
-            }
-        };
-
-        updateFilterState();
-
-        elTahun.addEventListener('change', () => {
-            updateFilterState();
-            refreshData();
-        });
-        
-        elBulan.addEventListener('change', () => refreshData());
-    }
-
-    // 3. Fungsi Update Indikator (Gaya Bensin Matic)
-    const updateFuelBar = (barId, textId, value) => {
-        const barElement = document.getElementById(barId);
-        const textElement = document.getElementById(textId);
-        
-        if (!barElement) return;
-
-        // Logika Warna Dinamis
-        const getColor = (val) => {
-            if (val <= 0) return '#dee2e6';
-            if (val < 50) return '#ff4d4d'; // Merah (E)
-            if (val < 85) return '#ffcc00'; // Kuning
-            return '#2ecc71';               // Hijau (F)
-        };
-
-        const color = getColor(value);
-
-        // Animasi lebar bar
-        barElement.style.width = value + '%';
-        barElement.style.backgroundColor = color;
-        
-        // Tambahkan efek bayangan cahaya (glow) agar lebih seperti LED
-        barElement.style.boxShadow = value > 0 ? `0 0 10px ${color}44` : 'none';
-
-        // Update Teks Persentase
-        if (textElement) {
-            textElement.style.color = color;
-            if (value === 0) {
-                textElement.innerHTML = `<small style="color: #6c757d; font-size:10px;">N/A</small>`;
-            } else {
-                textElement.innerText = value.toFixed(1) + '%';
-            }
-        }
-    };
-
-    // 4. Fungsi Refresh Data
-    const refreshData = () => {
+    function refreshData() {
         const elTahun = document.getElementById('selTahun');
         const elBulan = document.getElementById('selBulan');
         if (!elTahun || !elBulan) return;
 
         const selectedYear = elTahun.value;
         const selectedMonthKey = elBulan.value;
-        const activeMonthIndex = months.indexOf(selectedMonthKey);
 
         const rowP = dataP.find(d => d.tahun == selectedYear);
         const rowI = dataI.find(d => d.tahun == selectedYear);
         const rowS = dataS.find(d => d.tahun == selectedYear);
 
+        // --- 1. LOGIKA FUEL BAR (Langsung Bulan Terpilih / Non-Akumulasi) ---
+        
+        // Penyerapan: Langsung ambil nilai bulan tersebut dibagi pagu
+        let valP = 0;
         const pagu = rowP ? (parseFloat(rowP.pagu) || 0) : 0;
-
-        // Hitung Akumulasi Penyerapan
-        let totalP = 0;
-        if (rowP) {
-            for (let i = 0; i <= activeMonthIndex; i++) {
-                totalP += parseFloat(rowP[months[i]]) || 0;
-            }
+        if (rowP && pagu > 0) {
+            const nilaiBulanIni = parseFloat(rowP[selectedMonthKey]) || 0;
+            valP = Math.min((nilaiBulanIni / pagu) * 100, 100);
         }
 
-        const valP = Math.min(pagu > 0 ? (totalP / pagu) * 100 : 0, 100);
-        const valI = rowI ? Math.min(parseFloat(rowI[selectedMonthKey]) || 0, 100) : 0;
-        const valS = rowS ? Math.min(parseFloat(rowS[selectedMonthKey]) || 0, 100) : 0;
+        // IKPA: Langsung ambil nilai bulan tersebut
+        const valI = (rowI && !isNaN(parseFloat(rowI[selectedMonthKey]))) 
+            ? Math.min(parseFloat(rowI[selectedMonthKey]), 100) : null;
 
-        // Panggil Fungsi Update Bar
+        // SMART: Langsung ambil nilai bulan tersebut
+        const valS = (rowS && !isNaN(parseFloat(rowS[selectedMonthKey]))) 
+            ? Math.min(parseFloat(rowS[selectedMonthKey]), 100) : null;
+
         updateFuelBar('barPenyerapan', 'vPersenPenyerapan', valP);
         updateFuelBar('barIKPA', 'vPersenIKPA', valI);
         updateFuelBar('barSMART', 'vPersenSMART', valS);
-        
-        // Update Tampilan Pagu jika ada
+
+        // --- 2. LOGIKA PIE CHART (Tetap Rata-rata 5 Tahun Terakhir) ---
+        const avgP = getYearlyAvgDes(dataP);
+        const avgI = getYearlyAvg(dataI, months);
+        const avgS = getYearlyAvg(dataS, months);
+
+        renderPieChart('piePenyerapan', avgP, '#198754');
+        renderPieChart('pieIKPA', avgI, '#0d6efd');
+        renderPieChart('pieSMART', avgS, '#f1c40f');
+
         if (document.getElementById('display-pagu')) {
             document.getElementById('display-pagu').innerText = new Intl.NumberFormat('id-ID', { 
                 style: 'currency', currency: 'IDR', minimumFractionDigits: 0 
             }).format(pagu);
         }
-    };
+    }
 
-    // Jalankan pertama kali
+    // Bagian Dropdown dan Helper (updateFuelBar, renderPieChart, getYearlyAvg) tetap sama seperti sebelumnya...
+    // [Gunakan fungsi helper dari kode Anda sebelumnya di sini]
+
+    if (!document.getElementById('selTahun')) {
+        filterArea.innerHTML = `
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <select id="selTahun" class="form-select form-select-sm shadow-sm">
+                        ${years.map(y => `<option value="${y}" ${y == currentYear ? 'selected' : ''}>${y}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="col-6">
+                    <select id="selBulan" class="form-select form-select-sm shadow-sm">
+                        ${months.map((m, i) => `<option value="${m}" ${i == currentMonthIdx ? 'selected' : ''}>${m.toUpperCase()}</option>`).join('')}
+                    </select>
+                </div>
+            </div>`;
+        const elTahun = document.getElementById('selTahun');
+        const elBulan = document.getElementById('selBulan');
+        const updateFilterState = () => {
+            if (elTahun.value !== currentYear) {
+                elBulan.value = "des"; elBulan.disabled = true;
+            } else {
+                elBulan.disabled = false; elBulan.value = currentMonthKey;
+            }
+        };
+        updateFilterState();
+        elTahun.addEventListener('change', () => { updateFilterState(); refreshData(); });
+        elBulan.addEventListener('change', refreshData);
+    }
+
+    function updateFuelBar(barId, textId, value) {
+        const bar = document.getElementById(barId);
+        const txt = document.getElementById(textId);
+        if (!bar) return;
+        const color = (value === null) ? '#dee2e6' : (value < 50 ? '#ff4d4d' : value < 85 ? '#ffcc00' : '#2ecc71');
+        bar.style.width = (value !== null && value > 0) ? value + '%' : '0%';
+        bar.style.backgroundColor = color;
+        if (txt) {
+            txt.style.color = color;
+            txt.innerText = (value === null) ? 'N/A' : value.toFixed(2) + '%';
+        }
+    }
+
+    function renderPieChart(id, val, color) {
+        const canvas = document.getElementById(id);
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (canvas._pieChartInstance) canvas._pieChartInstance.destroy();
+        const centerText = {
+            id: 'centerText',
+            afterDraw(chart) {
+                const { ctx, width, height } = chart;
+                ctx.save();
+                ctx.font = 'bold 15px Arial';
+                ctx.fillStyle = color;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val.toFixed(2) + '%', width / 2, height / 2);
+                ctx.restore();
+            }
+        };
+        canvas._pieChartInstance = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [val, Math.max(0, 100 - val)],
+                    backgroundColor: [color, '#f0f2f5'],
+                    borderWidth: 0
+                }]
+            },
+            options: { cutout: '75%', plugins: { tooltip: { enabled: false }, legend: { display: false } } },
+            plugins: [centerText]
+        });
+    }
+
+    function getYearlyAvgDes(data) {
+        const sorted = [...data].sort((a, b) => b.tahun - a.tahun).slice(0, 5);
+        const valid = sorted.filter(r => parseFloat(r.pagu) > 0 && !isNaN(parseFloat(r.des)));
+        if (!valid.length) return 0;
+        const total = valid.reduce((s, r) => s + (parseFloat(r.des) / parseFloat(r.pagu) * 100), 0);
+        return parseFloat((total / valid.length).toFixed(2));
+    }
+
+    function getYearlyAvg(data, mList) {
+        const sorted = [...data].sort((a, b) => b.tahun - a.tahun).slice(0, 5);
+        const avgs = sorted.map(r => {
+            let s = 0, c = 0;
+            mList.forEach(m => { const v = parseFloat(r[m]); if (!isNaN(v) && v > 0) { s += v; c++; } });
+            return c > 0 ? s / c : null;
+        }).filter(v => v !== null);
+        return avgs.length ? parseFloat((avgs.reduce((a, b) => a + b, 0) / avgs.length).toFixed(2)) : 0;
+    }
+
     refreshData();
 }
 function renderCapaianKinerja(listPenyerapan, listIKPA, listSMART) {
@@ -1276,6 +1291,7 @@ function renderCapaianKinerja(listPenyerapan, listIKPA, listSMART) {
 
     if (!window.myLineChart) window.myLineChart = null;
 
+    
     const updateChart = () => {
         const selectedYear = parseInt(document.getElementById('selTahun')?.value || years[0]);
         const isCurrentYear = selectedYear === currentYear;
@@ -1743,7 +1759,7 @@ async function loadRunningText() {
             <div class="d-flex align-items-center">
                             <span class="mx-5 fw-bold text-dark"><i class="fas fa-newspaper text-success me-2"></i> BERITA TERBARU: <span class="text-success">${beritaTxt}</span></span>    
             <span class="mx-5 fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i> JADWAL KUNJUNGAN: <span class="text-primary">${jadwalClean}</span></span>
-                <span class="mx-5 fw-bold text-danger text-uppercase"><i class="fas fa-shield-alt me-2"></i> WASPADA PENIPUAN! Seluruh layanan pemasyarakatan TIDAK DIPUNGUT BIAYA (GRATIS)</span>
+                <span class="mx-5 fw-bold text-danger text-uppercase"><i class="fas fa-shield-alt me-2"></i> WASPADA PENIPUAN! Seluruh layanan pemasyarakatan (Remisi, PB, CB, CMB, dan Kunjungan) TIDAK DIPUNGUT BIAYA (GRATIS)</span>
             </div>
         `;
 
