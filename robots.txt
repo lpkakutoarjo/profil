@@ -1,8 +1,11 @@
+# Robots.txt untuk https://lpkakutoarjo.my.id/
 User-agent: *
 Allow: /
-Sitemap: https://lpkakutoarjo.my.id/sitemap.xml
 
-# Mencegah indexing file sistem/aset yang tidak perlu muncul di pencarian
-Disallow: /css/
-Disallow: /js/
-Disallow: /image/
+# Melarang akses ke folder aset agar tidak muncul di hasil pencarian gambar/kode secara terpisah
+Disallow: /assets/css/
+Disallow: /assets/js/
+Disallow: /assets/vendor/
+
+# Lokasi Sitemap
+Sitemap: https://lpkakutoarjo.my.id/sitemap.xml
