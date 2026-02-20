@@ -1,58 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/</loc>
-        <lastmod>2025-01-01</lastmod>
+        <loc>https://lpkakutoarjo.my.id/</loc>
+        <lastmod>2026-02-20</lastmod>
         <priority>1.00</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/index.html</loc>
+        <loc>https://lpkakutoarjo.my.id/index.html</loc>
+        <lastmod>2026-02-20</lastmod>
         <priority>1.00</priority>
     </url>
 
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/sejarah.html</loc>
+        <loc>https://lpkakutoarjo.my.id/sejarah.html</loc>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/pejabat.html</loc>
+        <loc>https://lpkakutoarjo.my.id/pejabat.html</loc>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/visimisi.html</loc>
+        <loc>https://lpkakutoarjo.my.id/visimisi.html</loc>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/tupoksi.html</loc>
+        <loc>https://lpkakutoarjo.my.id/tupoksi.html</loc>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/struktur.html</loc>
+        <loc>https://lpkakutoarjo.my.id/struktur.html</loc>
         <priority>0.80</priority>
     </url>
 
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/infopublik.html</loc>
-        <priority>0.90</priority>
-    </url>
-    <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/berita.html</loc>
-        <priority>0.90</priority>
-    </url>
-    <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/kunjungan.html</loc>
+        <loc>https://lpkakutoarjo.my.id/pkbm.html</loc>
         <priority>0.85</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/hukum.html</loc>
+        <loc>https://lpkakutoarjo.my.id/klinik.html</loc>
+        <priority>0.85</priority>
+    </url>
+    <url>
+        <loc>https://lpkakutoarjo.my.id/penyerapananggaran.html</loc>
+        <priority>0.80</priority>
+    </url>
+
+    <url>
+        <loc>https://lpkakutoarjo.my.id/infopublik.html</loc>
+        <priority>0.90</priority>
+    </url>
+    <url>
+        <loc>https://lpkakutoarjo.my.id/berita.html</loc>
+        <priority>0.90</priority>
+    </url>
+    <url>
+        <loc>https://lpkakutoarjo.my.id/kunjungan.html</loc>
+        <priority>0.85</priority>
+    </url>
+    <url>
+        <loc>https://lpkakutoarjo.my.id/hukum.html</loc>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/reintegrasi.html</loc>
+        <loc>https://lpkakutoarjo.my.id/reintegrasi.html</loc>
         <priority>0.80</priority>
     </url>
     <url>
-        <loc>https://reennd.github.io/lpkakutoarjo.com/pengaduan.html</loc>
+        <loc>https://lpkakutoarjo.my.id/pengaduan.html</loc>
         <priority>0.85</priority>
     </url>
 </urlset>
