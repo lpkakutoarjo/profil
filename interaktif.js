@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbzwxVv3hpgos4acksrSbjjSsvKBxKKwLb_EC8OWcEGoAR9LERsFuRfMGf7NOpm27_NW/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxhWCeTGS61Z0EMSCGEVX8C2GeAw9X53uqN724zpeiNUaghvhiN52g7E0Q7mzQV8eLb/exec'; 
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -148,20 +148,27 @@ function renderByPage(data) {
     if (document.getElementById('pejabat-container')) renderPejabat(data.pejabat);
     if (document.getElementById('sidebar-video-container')) renderVideoSidebar(data.video);
     
+// 2. Render Data & Informasi (Sidebar)
+    // Pastikan memanggil data dengan case-sensitive yang benar sesuai JSON dari API
+    const dataWBP = data.wargabinaan || data.Wargabinaan || [];
+    const dataPegawai = data.kepegawaian || data.Kepegawaian || [];
+    
+    renderDataInformasi(dataWBP, dataPegawai);
+
     // Deteksi Halaman Aktif
     const mainEl = document.querySelector('main');
     const pageId = mainEl ? mainEl.getAttribute('data-page') : 'home';
 
     // Routing Render
     switch (pageId) {
-        case 'home':
+case 'home':
             renderBanner(data.banner);
             renderBerita(data.berita);
-           renderMultiGaugeLogic(
-        data.penyerapananggaran, 
-        data.ikpa, 
-        data.smart
-    ); // <--- Tambahkan ini agar penyerapananggaran tampil
+            renderMultiGaugeLogic(
+                data.penyerapananggaran, 
+                data.ikpa, 
+                data.smart
+            );
             break;
         case 'pencarian':
             performSearch(data);
@@ -211,10 +218,106 @@ function renderByPage(data) {
             break;
     }
 }
+function renderDataInformasi(wargabinaan, kepegawaian) {
+    console.log("LOG: Memulai Render Layar...");
+    
+    const sekarang = new Date();
+    const tglHariIni = sekarang.getDate();
+    const blnIdx = sekarang.getMonth();
+    const opsiTgl = { day: 'numeric', month: 'long', year: 'numeric' };
+    const tglString = sekarang.toLocaleDateString('id-ID', opsiTgl);
 
-// ==========================================
-// 2. RENDER LAYANAN SPESIFIK (KUNJUNGAN, PENGADUAN)
-// ==========================================
+    // --- 1. UPDATE TANGGAL & LABEL ---
+    const dateEl = document.getElementById('realtime-date');
+    const labelWBP = document.getElementById('label-rekap-wbp');
+    if(dateEl) dateEl.innerText = tglString;
+    if(labelWBP) labelWBP.innerText = `REKAP ANAK DAN ANAK BINAAN (${tglString})`;
+
+    // --- 2. UPDATE WARGABINAAN (MENGGUNAKAN KOLOM ANAK & ANAKBINAAN) ---
+    let jmlAnak = 0, jmlAB = 0;
+
+    if (wargabinaan && wargabinaan.length > 0) {
+        // Mencari data wargabinaan (asumsi data dikirim sebagai array objek)
+        // Kita bisa mencari data yang relevan, misalnya data pertama atau hasil filter
+        const dataTerbaru = wargabinaan[0]; // Mengambil baris pertama data
+
+        if (dataTerbaru) {
+            // Mengambil langsung dari kolom 'anak' dan 'anakbinaan'
+            // Menggunakan fallback 0 jika data null/undefined
+            jmlAnak = Number(dataTerbaru.anak || dataTerbaru.Anak || 0);
+            jmlAB = Number(dataTerbaru.anakbinaan || dataTerbaru.AnakBinaan || 0);
+        }
+    }
+    
+    const elAnak = document.getElementById('today-anak');
+    const elAB = document.getElementById('today-ab');
+    const elTotalH = document.getElementById('total-hunian');
+
+    if(elAnak) elAnak.innerText = jmlAnak;
+    if(elAB) elAB.innerText = jmlAB;
+    if(elTotalH) elTotalH.innerText = (jmlAnak + jmlAB);
+
+    // --- 3. UPDATE KEPEGAWAIAN ---
+    const labelPegawai = document.getElementById('label-kepegawaian');
+    if(labelPegawai) {
+        const bulan = sekarang.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+        labelPegawai.innerText = `KEPEGAWAIAN (${bulan})`;
+    }
+
+    const tableBody = document.getElementById('table-jabatan-body');
+    if (tableBody) {
+        let barisHtml = '';
+        if (kepegawaian && kepegawaian.length > 0) {
+            // Ambil list jabatan unik
+            const listJabatan = [...new Set(kepegawaian
+                .map(d => (d.Jabatan || d.jabatan || '').toString().trim())
+                .filter(jab => jab && jab.toLowerCase() !== 'total'))];
+
+            listJabatan.forEach(jab => {
+                const dataJab = kepegawaian.find(d => 
+                    (d.Jabatan || d.jabatan || '').toString().trim().toLowerCase() === jab.toLowerCase()
+                );
+                
+                // Mapping kolom L, P, dan Jumlah yang lebih fleksibel
+                const l = dataJab ? (dataJab["lakilaki"] || dataJab["Laki-laki"] || dataJab["L"] || 0) : 0;
+                const p = dataJab ? (dataJab["perempuan"] || dataJab["Perempuan"] || dataJab["P"] || 0) : 0;
+                const total = dataJab ? (dataJab["jumlah"] || dataJab["Jumlah"] || dataJab["Jml"] || 0) : 0;
+
+                barisHtml += `
+                    <tr>
+                        <td class="ps-2 fw-medium">${jab}</td>
+                        <td class="text-center">${l}</td>
+                        <td class="text-center">${p}</td>
+                        <td class="text-center fw-bold bg-light">${total}</td>
+                    </tr>`;
+            });
+
+            // Baris total
+            const dataTotal = kepegawaian.find(d => 
+                (d.Jabatan || d.jabatan || '').toString().trim().toLowerCase() === "total"
+            );
+            if (dataTotal) {
+                const tl = dataTotal["lakilaki"] || dataTotal["Laki-laki"] || dataTotal["L"] || 0;
+                const tp = dataTotal["perempuan"] || dataTotal["Perempuan"] || dataTotal["P"] || 0;
+                const tj = dataTotal["jumlah"] || dataTotal["Jumlah"] || dataTotal["Jml"] || 0;
+
+                barisHtml += `
+                    <tr class="table-primary fw-bold text-center">
+                        <td>TOTAL</td>
+                        <td>${tl}</td>
+                        <td>${tp}</td>
+                        <td>${tj}</td>
+                    </tr>`;
+            }
+        }
+        tableBody.innerHTML = barisHtml || `<tr><td colspan="4" class="text-center text-muted">Data tidak tersedia</td></tr>`;
+    }
+
+    console.log("LOG: Render Selesai.");
+}
+
+
+
 
 function renderLayananSpesifik(type, data) {
     const container = document.getElementById('service-content-area');
@@ -1331,20 +1434,40 @@ function renderCapaianKinerja(listPenyerapan, listIKPA, listSMART) {
         const seriesS = monthsKey.map(m => rowS ? parseFloat(rowS[m]) || 0 : 0);
 
         // Update KPI Cards
-        const updateKPI = (id, dataArray) => {
-            const lastVal = [...dataArray].reverse().find(v => v > 0) || 0;
-            const el = document.getElementById(id);
-            if (el) {
-                if (lastVal > 0) {
-                    el.innerText = lastVal + '%';
-                } else {
-                    el.innerHTML = `<span style="font-size: 11px; color: #6c757d; letter-spacing: 0.5px; font-style: italic; display: block; margin-top: 5px;">Data belum tersedia</span>`;
-                }
-            }
-        };
-        updateKPI('statPenyerapan', seriesP);
-        updateKPI('statIKPA', seriesI);
-        updateKPI('statSMART', seriesS);
+  // --- LOGIKA UPDATE KPI CARD ---
+const updateKPI = (id, dataArray, isPenyerapan = false) => {
+    let lastVal = 0;
+
+    if (isPenyerapan && rowP) {
+        // KUNCI: Ambil data langsung dari kolom bulan terakhir yang tersedia di rowP
+        // Mencari dari des -> jan
+        const lastMonthWithData = [...monthsKey].reverse().find(m => rowP[m] && parseFloat(rowP[m]) > 0);
+        
+        if (lastMonthWithData) {
+            const pagu = parseFloat(rowP.pagu) || 1;
+            const nilaiBulanIni = parseFloat(rowP[lastMonthWithData]) || 0;
+            // Menghitung persentase murni bulan tersebut terhadap pagu
+            lastVal = parseFloat(((nilaiBulanIni / pagu) * 100).toFixed(2));
+        }
+    } else {
+        // Logika default untuk IKPA & SMART
+        lastVal = [...dataArray].reverse().find(v => v > 0) || 0;
+    }
+
+    const el = document.getElementById(id);
+    if (el) {
+        if (lastVal > 0) {
+            el.innerText = lastVal + '%';
+        } else {
+            el.innerHTML = `<span style="font-size: 11px; color: #6c757d; font-style: italic;">Data tidak tersedia</span>`;
+        }
+    }
+};
+
+// Panggil fungsi update dengan parameter tambahan untuk penyerapan
+updateKPI('statPenyerapan', seriesP, true); // true menandakan ini pengambilan data langsung
+updateKPI('statIKPA', seriesI);
+updateKPI('statSMART', seriesS);
 
 let chartConfig = {
     type: isCurrentYear ? 'line' : 'bar',
@@ -1796,7 +1919,7 @@ function renderBerita(list) {
     });
 
     // 3. Ambil 6 berita teratas setelah di-sort
-    const latest = sorted.slice(0, 6);
+    const latest = sorted.slice(0, 4);
     
     let html = '';
     latest.forEach((item, idx) => {
@@ -2022,21 +2145,25 @@ function renderVideoSidebar(list) {
     limited.forEach(item => {
         const vidId = getYoutubeId(item.link || item.url);
         const thumb = vidId ? `https://img.youtube.com/vi/${vidId}/hqdefault.jpg` : '';
-        
-        // Mengambil teks dari kolom "Judul" di spreadsheet
-        // Sesuaikan 'item.Judul' dengan nama key yang dihasilkan oleh parser spreadsheet Anda
         const judulVideo = item.Judul || item.judul || "Judul tidak tersedia";
 
+        // Tambahkan class 'col-md-6' agar sejajar horizontal (2 kolom)
         html += `
-            <div class="mb-4">
-                <a href="${item.link}" target="_blank" class="sidebar-video-card d-block position-relative mb-2">
-                    <img src="${thumb}" class="w-100 rounded">
-                    <div class="position-absolute top-50 start-50 translate-middle text-white">
-                        <i class="fab fa-youtube fa-3x"></i>
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden">
+                    <a href="${item.link}" target="_blank" class="sidebar-video-card d-block position-relative">
+                        <div class="ratio ratio-16x9">
+                            <img src="${thumb}" class="object-fit-cover w-100" alt="${judulVideo}">
+                        </div>
+                        <div class="position-absolute top-50 start-50 translate-middle text-white" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                            <i class="fab fa-youtube fa-3x"></i>
+                        </div>
+                    </a>
+                    <div class="card-body p-3">
+                        <div class="video-sidebar-title fw-bold" style="font-size: 15px; line-height: 1.4; color: #333;">
+                            ${judulVideo}
+                        </div>
                     </div>
-                </a>
-                <div class="video-sidebar-title" style="font-size: 14px; font-weight: 600; line-height: 1.4; color: #333;">
-                    ${judulVideo}
                 </div>
             </div>`;
     });
