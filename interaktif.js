@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbxhWCeTGS61Z0EMSCGEVX8C2GeAw9X53uqN724zpeiNUaghvhiN52g7E0Q7mzQV8eLb/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxtbrrQ1__pb8utXz6esM9TMTnFnPfmtKAzYaMG6CQmVbaCa09D4RbrFvMnLOGfhy_3/exec'; 
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -147,7 +147,7 @@ function renderByPage(data) {
     // Render Elemen Sidebar (Selalu muncul jika elemen ada)
     if (document.getElementById('pejabat-container')) renderPejabat(data.pejabat);
     if (document.getElementById('sidebar-video-container')) renderVideoSidebar(data.video);
-    
+    if (document.getElementById('karya-section')) renderKaryaMarquee(data.galerikarya);
 // 2. Render Data & Informasi (Sidebar)
     // Pastikan memanggil data dengan case-sensitive yang benar sesuai JSON dari API
     const dataWBP = data.wargabinaan || data.Wargabinaan || [];
@@ -169,6 +169,7 @@ case 'home':
                 data.ikpa, 
                 data.smart
             );
+            renderKaryaMarquee(data.galerikarya);
             break;
         case 'pencarian':
             performSearch(data);
@@ -316,7 +317,87 @@ function renderDataInformasi(wargabinaan, kepegawaian) {
     console.log("LOG: Render Selesai.");
 }
 
+function renderKaryaMarquee(data) {
+    const container = document.getElementById('karya-section');
+    if (!container || !data || data.length === 0) return;
 
+    // Ambil semua link gambar, nama karya, dan deskripsi dari spreadsheet
+    const imageItems = data
+        .map(item => ({
+            link: item.gambar,
+            nama: item.namakarya || item.namaKarya || item.judul || "Karya Anak",
+            deskripsi: item.deskripsi || item.Deskripsi || item.keterangan || ""
+        }))
+        .filter(item => item.link && item.link.trim() !== "");
+
+    let html = `
+        <div class="mt-3"> 
+            <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2" style="border-color: #28a745!important;">
+                <h4 class="fw-bold text-success m-0" style="font-size:1.8rem;">
+                    <i class="fas fa-palette me-2"></i> Galeri Karya Anak
+                </h4>
+            </div>
+            <div class="marquee-container">
+                <div class="marquee-content">
+    `;
+
+    // Tampilkan semua gambar dengan nama karya dan event popup
+    const itemsHtml = imageItems.map(item => {
+        const imgUrl = fixGoogleDriveImage(item.link);
+        return `
+            <div class="karya-item shadow-sm text-center" style="cursor: pointer; width: 180px; margin: 0 12px;" 
+                onclick="showFullGalleryPreview('${imgUrl}', '${encodeURIComponent(item.nama)}', '${encodeURIComponent(item.deskripsi)}')">
+                <img src="${imgUrl}" alt="${item.nama}" style="width:160px; height:160px; object-fit:cover; border-radius:12px; box-shadow:0 2px 8px #eee;">
+                <div class="fw-bold mt-2 text-dark" style="font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.nama}</div>
+            </div>
+        `;
+    }).join('');
+
+    html += itemsHtml + itemsHtml; 
+    html += `</div></div></div>`;
+
+    container.innerHTML = html;
+}
+
+// Tambahkan/ubah fungsi berikut agar popup menampilkan gambar, nama, dan deskripsi
+function showFullGalleryPreview(imgUrl, nama, deskripsi) {
+    nama = decodeURIComponent(nama);
+    deskripsi = decodeURIComponent(deskripsi);
+
+    // Buat modal jika belum ada
+    let modal = document.getElementById('galleryPreviewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'galleryPreviewModal';
+        modal.className = 'modal fade';
+        modal.tabIndex = -1;
+        modal.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-success" id="galleryPreviewTitle"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="galleryPreviewImg" src="" alt="" style="max-width:100%; max-height:400px; border-radius:12px;">
+                        <div class="mt-3 text-muted" id="galleryPreviewDesc"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    // Set konten modal
+    document.getElementById('galleryPreviewTitle').innerText = nama;
+    document.getElementById('galleryPreviewImg').src = imgUrl;
+    document.getElementById('galleryPreviewImg').alt = nama;
+    document.getElementById('galleryPreviewDesc').innerText = deskripsi;
+
+    // Tampilkan modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
 
 
 function renderLayananSpesifik(type, data) {
@@ -2159,7 +2240,7 @@ function renderVideoSidebar(list) {
                             <i class="fab fa-youtube fa-3x"></i>
                         </div>
                     </a>
-                    <div class="card-body p-3">
+                    <div class="card-body p-1">
                         <div class="video-sidebar-title fw-bold" style="font-size: 15px; line-height: 1.4; color: #333;">
                             ${judulVideo}
                         </div>
@@ -3043,16 +3124,24 @@ function initGalleryModal() {
 
 function showFullGalleryPreview(img, title, desc) {
     const modalEl = document.getElementById('galleryPreviewModal');
+    
+    // Inisialisasi modal jika belum ada di DOM
     if (!modalEl) {
         initGalleryModal();
         setTimeout(() => showFullGalleryPreview(img, title, desc), 100);
         return;
     }
     
-    document.getElementById('gp-image').src = img;
-    document.getElementById('gp-title').innerText = title;
-    document.getElementById('gp-desc').innerHTML = desc;
+    // Decode data kembali ke teks normal
+    const decodedTitle = decodeURIComponent(title);
+    const decodedDesc = decodeURIComponent(desc);
     
+    // Mapping ke elemen modal (Sesuai ID modal yang Anda berikan)
+    document.getElementById('gp-image').src = img;
+    document.getElementById('gp-title').innerText = decodedTitle;
+    document.getElementById('gp-desc').innerHTML = decodedDesc;
+    
+    // Tampilkan modal menggunakan Bootstrap
     if (typeof bootstrap !== 'undefined') {
         const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
         bsModal.show();
