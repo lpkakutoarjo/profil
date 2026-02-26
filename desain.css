@@ -662,7 +662,46 @@ main {
 .marquee-track:hover {
     animation-play-state: paused;
 }
+/* Container Utama Marquee */
+.marquee-container {
+    overflow: hidden;
+    user-select: none;
+    display: flex;
+    gap: 20px;
+    padding: 10px 0;
+    position: relative;
+}
 
+/* Track yang bergerak */
+.marquee-content {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    min-width: 100%;
+    animation: scroll-left 30s linear infinite;
+}
+
+/* Pause saat kursor di atasnya */
+.marquee-container:hover .marquee-content {
+    animation-play-state: paused;
+}
+
+/* Animasi */
+@keyframes scroll-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+}
+
+/* Styling Card di dalam Marquee */
+.karya-item {
+    width: 250px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
 @keyframes marqueeScroll {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
