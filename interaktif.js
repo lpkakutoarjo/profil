@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'URL_API_RAHASIA_LPKA';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw_utNPSUU3aZMg8zpo4jM0yahu12Tr3K1vhWXgKPu9gG7935f8JbAKiBaXqw31ieUo/exec';
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
