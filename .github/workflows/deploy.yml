@@ -1,0 +1,43 @@
+name: Deploy ke GitHub Pages dengan Secret
+
+on:
+  push:
+    branches: ["main"] # PENTING: Ganti menjadi "master" jika nama branch utama Anda adalah master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil Kode (Checkout)
+        uses: actions/checkout@v4
+
+      - name: Suntikkan API Secret LPKA ke File JS
+        # Perintah ini akan mencari teks placeholder dan menimpanya dengan secret Anda
+        run: |
+          sed -i "s|URL_API_RAHASIA_LPKA|${{ secrets.API_LPKA }}|g" interaktif.js
+          sed -i "s|URL_API_RAHASIA_LPKA|${{ secrets.API_LPKA }}|g" admin.js
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
