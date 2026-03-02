@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbzQYu3ur28XNXFHWLFbgCefbxluhhDx_KczvwlccAZRkcpyH6RPy09UoxWE6TB_Mkex/exec'; 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxtbrrQ1__pb8utXz6esM9TMTnFnPfmtKAzYaMG6CQmVbaCa09D4RbrFvMnLOGfhy_3/exec'; 
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -1117,17 +1117,6 @@ if (data.berita) data.berita.forEach((item, index) => {
 /**
  * FUNGSI PREVIEW (MODAL)
  */
-
-function escapeHTML(str) {
-    if (!str) return "";
-    return str.toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
 function showQuickPreview(index) {
     const res = currentSearchResults[index];
     if (!res) return;
@@ -1137,26 +1126,21 @@ function showQuickPreview(index) {
     
     if (!modalEl || !body) return;
 
-    // Bersihkan judul dan deskripsi dari tag HTML berbahaya
-    const amanJudul = escapeHTML(res.title);
-    const amanDesc = escapeHTML(res.desc);
-
     if (res.type === 'DOKUMEN') {
         let embedUrl = res.link.includes('drive.google.com') ? res.link.replace('/view', '/preview') : res.link;
-        // Pastikan URL aman menggunakan encodeURI
         body.innerHTML = `
             <div style="height: 550px;">
-                <iframe src="${encodeURI(embedUrl)}" width="100%" height="100%" frameborder="0"></iframe>
+                <iframe src="${embedUrl}" width="100%" height="100%" frameborder="0"></iframe>
             </div>`;
     } else {
         let finalImg = (typeof fixGoogleDriveImage === 'function') ? fixGoogleDriveImage(res.image) : res.image;
         body.innerHTML = `
             <div>
-                ${finalImg ? `<img src="${encodeURI(finalImg)}" class="img-fluid w-100" style="max-height: 300px; object-fit: cover;">` : ''}
+                ${finalImg ? `<img src="${finalImg}" class="img-fluid w-100" style="max-height: 300px; object-fit: cover;">` : ''}
                 <div class="p-4">
-                    <h5 class="fw-bold text-dark mb-2">${amanJudul}</h5>
-                    <p class="text-secondary small lh-lg mb-4" style="text-align: justify;">${amanDesc}</p>
-                    <a href="${encodeURI(res.link)}" class="btn btn-dark w-100 rounded-pill fw-bold btn-sm">Buka Selengkapnya</a>
+                    <h5 class="fw-bold text-dark mb-2">${res.title}</h5>
+                    <p class="text-secondary small lh-lg mb-4" style="text-align: justify;">${res.desc}</p>
+                    <a href="${res.link}" class="btn btn-dark w-100 rounded-pill fw-bold btn-sm">Buka Selengkapnya</a>
                 </div>
             </div>`;
     }
