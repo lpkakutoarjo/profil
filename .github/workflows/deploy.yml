@@ -1,5 +1,4 @@
 name: Deploy ke GitHub Pages dengan Secret
-
 on:
   push:
     # Otomatis berjalan baik nama branch Anda "main" ataupun "master"
