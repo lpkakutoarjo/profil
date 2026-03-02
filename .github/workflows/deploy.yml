@@ -2,7 +2,8 @@ name: Deploy ke GitHub Pages dengan Secret
 
 on:
   push:
-    branches: ["main"] # PENTING: Ganti menjadi "master" jika nama branch utama Anda adalah master
+    # Otomatis berjalan baik nama branch Anda "main" ataupun "master"
+    branches: ["main", "master"] 
   workflow_dispatch:
 
 permissions:
@@ -24,11 +25,11 @@ jobs:
       - name: Ambil Kode (Checkout)
         uses: actions/checkout@v4
 
-      - name: Suntikkan API Secret LPKA ke File JS
-        # Perintah ini akan mencari teks placeholder dan menimpanya dengan secret Anda
+      - name: Suntikkan API Secret LPKA ke Semua File JS
+        # Perintah ini akan mencari semua file .js di folder manapun, 
+        # lalu mengganti placeholder menjadi URL asli Anda.
         run: |
-          sed -i "s|URL_API_RAHASIA_LPKA|${{ secrets.API_LPKA }}|g" interaktif.js
-          sed -i "s|URL_API_RAHASIA_LPKA|${{ secrets.API_LPKA }}|g" admin.js
+          find . -type f -name "*.js" -exec sed -i "s|URL_API_RAHASIA_LPKA|${{ secrets.API_LPKA }}|g" {} +
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -36,6 +37,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # Membaca seluruh file di repositori
           path: '.'
 
       - name: Deploy to GitHub Pages
