@@ -2294,9 +2294,9 @@ function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search); 
     return urlParams.get(param); 
 }
-    
+
 // ==========================================
-// RENDER HALAMAN PKBM (REVISI: BAR CHART & FILTER KOMPLEKS)
+// RENDER HALAMAN PKBM (REVISI: CARD STRUKTUR KECIL, TABEL SEJAJAR, HOVER HITAM)
 // ==========================================
 function renderPKBM(list) {
     const container = document.getElementById('pkbm-content-area');
@@ -2326,7 +2326,17 @@ function renderPKBM(list) {
     let logoUrl = fixGoogleDriveImage(data.logo);
     let html = '';
 
-    // --- 3. HTML STRUKTUR ---
+    // Injeksi CSS Khusus untuk Efek Hover Text Hitam pada Tombol Layanan
+    html += `
+    <style>
+        .btn-doc-pkbm:hover .text-white {
+            color: #212529 !important;
+            text-shadow: none !important;
+        }
+    </style>
+    `;
+
+    // --- 3. HTML STRUKTUR (HERO SECTION) ---
     html += `
     <div class="row g-4 mb-5">
         <div class="col-lg-8" data-aos="fade-right">
@@ -2335,7 +2345,8 @@ function renderPKBM(list) {
                 <p class="text-secondary lh-lg mb-4" style="text-align: justify;">
                     ${data.deskripsi ? data.deskripsi.replace(/\n/g, '<br>') : 'Deskripsi belum tersedia.'}
                 </p>
-                <div class="bg-light p-3 rounded-3 border-start border-4 border-warning shadow-sm">
+                
+                <div class="bg-light p-3 rounded-3 border-start border-4 border-warning shadow-sm mb-4">
                     <h6 class="fw-bold text-dark mb-3">
                         <i class="fas fa-calendar-alt me-2 text-warning"></i>Program Kegiatan:
                     </h6>
@@ -2353,6 +2364,12 @@ function renderPKBM(list) {
                         `).join('') : '<div class="text-muted small ps-2">Belum ada data</div>'}
                     </div>
                 </div>
+
+                <div class="mt-auto pt-3 border-top">
+                    <a href="javascript:void(0);" onclick="openDocPreview('Standar Operasional Prosedur', '${data.url_sop || ''}')" class="btn btn-outline-primary fw-bold shadow-sm rounded-pill px-4 py-2 hover-scale d-inline-flex align-items-center">
+                        <i class="fas fa-book-reader me-2"></i> Lihat Standar Operasional Prosedur (SOP)
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -2369,41 +2386,42 @@ function renderPKBM(list) {
                     <h5 class="fw-bold mb-1 ls-1">PKBM TUNAS MEKAR AMAN</h5>
                     <h6 class="fw-bold mb-2 ls-1 opacity-75">LPKA KLAS I KUTOARJO</h6>
                     <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill">
-                        <i class="fas fa-star me-1"></i> ${data.akreditasi || 'Terakreditasi A'}
+                        <i class="fas fa-star me-1"></i> ${data.akreditasi || 'Terakreditasi'}
                     </span>
                     <div style="width: 60px; height: 3px; background: #fff; margin: 0 auto;"></div>
                 </div>
 
                 <div class="d-grid gap-3 position-relative px-2" style="z-index: 2;">
-                    <a href="javascript:void(0);" onclick="openDocPreview('Badan Hukum', '${data.url_badan_hukum || ''}')" class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
+                    <a href="javascript:void(0);" onclick="openDocPreview('Badan Hukum', '${data.url_badan_hukum || ''}')" class="btn btn-outline-light btn-doc-pkbm text-start py-2 hover-scale border-opacity-50">
                         <div class="d-flex align-items-center">
                             <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-balance-scale fs-5"></i>
                             </div>
                             <div class="lh-sm overflow-hidden">
-                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Badan Hukum</small>
-                                <span class="fw-bold small text-truncate d-block">${data.dasar_hukum || '-'}</span>
+                                <small class="d-block text-white fw-bolder" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Badan Hukum</small>
+                                <span class="fw-bold text-white small text-truncate d-block" style="font-size: 0.9rem;">${data.dasar_hukum || '-'}</span>
                             </div>
                         </div>
                     </a>
-                    <a href="javascript:void(0);" onclick="openDocPreview('Surat Keputusan', '${data.url_sk || ''}')" class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
+                    <a href="javascript:void(0);" onclick="openDocPreview('Izin Operasional', '${data.url_sk || ''}')" class="btn btn-outline-light btn-doc-pkbm text-start py-2 hover-scale border-opacity-50">
                         <div class="d-flex align-items-center">
                             <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-file-contract fs-5"></i>
                             </div>
                             <div class="lh-sm overflow-hidden">
-                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Surat Keputusan</small>
-                                <span class="fw-bold small text-truncate d-block">${data.sk || '-'}</span>
+                                <small class="d-block text-white fw-bolder" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Izin Operasional</small>
+                                <span class="fw-bold text-white small text-truncate d-block" style="font-size: 0.9rem;">${data.sk || '-'}</span>
                             </div>
                         </div>
                     </a>
-                    <a href="javascript:void(0);" onclick="openDocPreview('Standar Operasional Prosedur', '${data.url_sop || ''}')" class="btn btn-warning text-dark text-start py-2 hover-scale border-0 shadow-sm">
+                    <a href="javascript:void(0);" onclick="openDocPreview('Sertifikat Akreditasi', '${data.url_akreditasi || ''}')" class="btn btn-outline-light btn-doc-pkbm text-start py-2 hover-scale border-opacity-50">
                         <div class="d-flex align-items-center">
                             <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-book-reader fs-5"></i>
+                                <i class="fas fa-award fs-5"></i>
                             </div>
                             <div class="lh-sm overflow-hidden">
-                                <span class="fw-bold small text-truncate d-block">${data.sop || 'Dokumen SOP'}</span>
+                                <small class="d-block text-white fw-bolder" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Akreditasi</small>
+                                <span class="fw-bold text-white small text-truncate d-block" style="font-size: 0.9rem;">${data.sk_akreditasi || 'Lihat Dokumen'}</span>
                             </div>
                         </div>
                     </a>
@@ -2418,49 +2436,75 @@ function renderPKBM(list) {
         html += renderGalleryMarquee(galeriData, "Galeri Kegiatan PKBM", "pkbmGallery", "primary");
     }
 
-    // --- 5. TABEL STATISTIK ---
+    // --- 5. STRUKTUR (KIRI, KECIL) & STATISTIK (KANAN, LEBAR) ---
     html += `
-    <h4 class="fw-bold text-center text-dark mb-4 mt-5" data-aos="fade-up">Statistik Tenaga Kependidikan</h4>
-    
-    <div class="row g-4 mb-5 justify-content-center">
-        <div class="col-md-6 col-lg-5" data-aos="zoom-in" data-aos-delay="100">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white fw-bold text-center py-3 border-bottom text-primary">
-                    <i class="fas fa-venus-mars me-2"></i>Gender Pendidik <span class="badge bg-secondary rounded-pill ms-2">Total: ${totalGuru}</span>
+    <div class="row g-4 mb-5 mt-4 align-items-stretch">
+        
+        <div class="col-lg-5" data-aos="fade-right">
+            <h4 class="fw-bold text-dark mb-4 text-center text-lg-start">Struktur Organisasi</h4>
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                <div class="card-body p-3 bg-light d-flex align-items-center justify-content-center" style="min-height: 250px;">
+                    ${data.url_struktur ? `
+                        <img src="${fixGoogleDriveImage(data.url_struktur)}" 
+                             class="img-fluid rounded-3 shadow-sm hover-scale" 
+                             alt="Struktur Organisasi PKBM" 
+                             style="max-height: 320px; width: 100%; object-fit: contain; cursor: zoom-in; transition: 0.3s;" 
+                             onclick="showFullGalleryPreview('${fixGoogleDriveImage(data.url_struktur)}', 'Struktur Organisasi PKBM', 'Bagan struktur organisasi PKBM Tunas Mekar Aman LPKA Kelas I Kutoarjo.')">
+                    ` : `
+                        <div class="text-muted text-center py-5 w-100">
+                            <i class="fas fa-sitemap fa-3x mb-3 opacity-50"></i>
+                            <p class="mb-0">Bagan Struktur Organisasi belum tersedia.</p>
+                        </div>
+                    `}
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle mb-0">
-                            <thead class="table-light"><tr><th class="ps-4">Gender</th><th class="text-end pe-4">Jumlah</th></tr></thead>
-                            <tbody>
-                                <tr><td class="ps-4">Laki-Laki</td><td class="text-end pe-4 fw-bold">${gl}</td></tr>
-                                <tr><td class="ps-4">Perempuan</td><td class="text-end pe-4 fw-bold">${gp}</td></tr>
-                            </tbody>
-                            <tfoot class="table-light"><tr><td class="ps-4 fw-bold">Total Pendidik</td><td class="text-end pe-4 fw-bold text-primary">${totalGuru}</td></tr></tfoot>
-                        </table>
+            </div>
+        </div>
+
+        <div class="col-lg-7" data-aos="fade-left" data-aos-delay="100">
+            <h4 class="fw-bold text-dark mb-4 text-center text-lg-start">Statistik Pendidik</h4>
+            <div class="row g-3 h-100">
+                <div class="col-sm-6 d-flex">
+                    <div class="card border-0 shadow-sm rounded-4 flex-fill w-100">
+                        <div class="card-header bg-white fw-bold text-center py-3 border-bottom text-primary">
+                            <i class="fas fa-venus-mars me-2"></i>Gender Pendidik
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover align-middle mb-0">
+                                    <thead class="table-light"><tr><th class="ps-3">Gender</th><th class="text-end pe-3">Jumlah</th></tr></thead>
+                                    <tbody>
+                                        <tr><td class="ps-3">Laki-Laki</td><td class="text-end pe-3 fw-bold">${gl}</td></tr>
+                                        <tr><td class="ps-3">Perempuan</td><td class="text-end pe-3 fw-bold">${gp}</td></tr>
+                                    </tbody>
+                                    <tfoot class="table-light"><tr><td class="ps-3 fw-bold">Total</td><td class="text-end pe-3 fw-bold text-primary">${totalGuru}</td></tr></tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-sm-6 d-flex">
+                    <div class="card border-0 shadow-sm rounded-4 flex-fill w-100">
+                        <div class="card-header bg-white fw-bold text-center py-3 border-bottom text-success">
+                            <i class="fas fa-graduation-cap me-2"></i>Pendidikan Guru
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover align-middle mb-0">
+                                    <thead class="table-light"><tr><th class="ps-3">Pendidikan</th><th class="text-end pe-3">Jumlah</th></tr></thead>
+                                    <tbody>
+                                        <tr><td class="ps-3">Diploma</td><td class="text-end pe-3 fw-bold">${gd}</td></tr>
+                                        <tr><td class="ps-3">Sarjana</td><td class="text-end pe-3 fw-bold">${gs}</td></tr>
+                                    </tbody>
+                                    <tfoot class="table-light"><tr><td class="ps-3 fw-bold">Total</td><td class="text-end pe-3 fw-bold text-success">${totalGuru}</td></tr></tfoot>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-lg-5" data-aos="zoom-in" data-aos-delay="200">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-white fw-bold text-center py-3 border-bottom text-success">
-                    <i class="fas fa-graduation-cap me-2"></i>Pendidikan Guru
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle mb-0">
-                            <thead class="table-light"><tr><th class="ps-4">Pendidikan</th><th class="text-end pe-4">Jumlah</th></tr></thead>
-                            <tbody>
-                                <tr><td class="ps-4">Diploma</td><td class="text-end pe-4 fw-bold">${gd}</td></tr>
-                                <tr><td class="ps-4">Sarjana</td><td class="text-end pe-4 fw-bold">${gs}</td></tr>
-                            </tbody>
-                            <tfoot class="table-light"><tr><td class="ps-4 fw-bold">Total</td><td class="text-end pe-4 fw-bold text-success">${totalGuru}</td></tr></tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <div class="row mb-5" data-aos="fade-up">
