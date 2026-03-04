@@ -1877,12 +1877,35 @@ function renderTupoksi(list) {
     const container = document.getElementById('tupoksi-container');
     const loadingElement = document.getElementById('loading-tupoksi');
     if (!container) return;
-    if(!list || list.length === 0) { container.innerHTML = '<div class="text-center py-5">Data Tupoksi belum tersedia.</div>'; if(loadingElement) loadingElement.style.display = 'none'; return; }
+    if(!list || list.length === 0) { 
+        container.innerHTML = '<div class="text-center py-5">Data Tupoksi belum tersedia.</div>'; 
+        if(loadingElement) loadingElement.style.display = 'none'; 
+        return; 
+    }
     
     let html = '<div class="col-lg-10"><div class="accordion" id="accTupoksi">';
     list.forEach((item, idx) => {
         let kontenBersih = item.konten ? item.konten.replace(/\n/g, '<br>') : "Belum ada konten.";
-        html += `<div class="accordion-item border-0 shadow-sm mb-3 rounded overflow-hidden"><h2 class="accordion-header"><button class="accordion-button ${idx !== 0 ? 'collapsed' : ''} fw-bold text-primary bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${idx}">${item.kategori}</button></h2><div id="collapse${idx}" class="accordion-collapse collapse ${idx === 0 ? 'show' : ''}" data-bs-parent="#accTupoksi"><div class="accordion-body bg-white lh-lg text-secondary">${kontenBersih}</div></div></div>`;
+        
+        // Logika penentuan warna background: kuning jika index 0, selain itu light.
+        const bgColor = (idx === 0) ? 'bg-warning' : 'bg-light';
+        
+        html += `
+            <div class="accordion-item border-0 shadow-sm mb-3 rounded overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button ${idx !== 0 ? 'collapsed' : ''} fw-bold text-primary ${bgColor}" 
+                            type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#collapse${idx}">
+                        ${item.kategori}
+                    </button>
+                </h2>
+                <div id="collapse${idx}" class="accordion-collapse collapse ${idx === 0 ? 'show' : ''}" data-bs-parent="#accTupoksi">
+                    <div class="accordion-body bg-white lh-lg text-secondary">
+                        ${kontenBersih}
+                    </div>
+                </div>
+            </div>`;
     });
     html += '</div></div>';
     container.innerHTML = html;
@@ -2728,23 +2751,38 @@ function renderKlinik(list) {
 
     // --- 3. LAYOUT: DESKRIPSI & SOP ---
     html += `
-    <div class="row g-4 mb-5">
-        <div class="col-lg-8" data-aos="fade-right">
-            <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
-                <h4 class="fw-bold text-success mb-3"><i class="fas fa-stethoscope me-2"></i>Tentang Klinik</h4>
-                <p class="text-secondary lh-lg mb-4" style="text-align: justify;">
-                    ${mainData.deskripsi ? mainData.deskripsi.replace(/\n/g, '<br>') : 'Deskripsi belum tersedia.'}
-                </p>
-                <div class="d-flex flex-wrap gap-3">
-                     <div class="bg-light px-3 py-2 rounded text-warning fw-bold">
-                        <i class="fas fa-clock me-2"></i> Layanan 24 Jam
-                     </div>
-                     <div class="bg-light px-3 py-2 rounded text-warning fw-bold">
-                        <i class="fas fa-user-md me-2"></i> Tenaga Profesional
-                     </div>
-                </div>
+<div class="row g-4 mb-5">
+    <div class="col-lg-8" data-aos="fade-right">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-4">
+            <h4 class="fw-bold text-success mb-3"><i class="fas fa-stethoscope me-2"></i>Tentang Klinik</h4>
+            <p class="text-secondary lh-lg mb-4" style="text-align: justify;">
+                ${mainData.deskripsi ? mainData.deskripsi.replace(/\n/g, '<br>') : 'Deskripsi belum tersedia.'}
+            </p>
+            
+            <div class="d-flex flex-wrap gap-3 mb-4">
+                 <div class="bg-light px-3 py-2 rounded text-warning fw-bold">
+                    <i class="fas fa-clock me-2"></i> Layanan 24 Jam
+                 </div>
+                 <div class="bg-light px-3 py-2 rounded text-warning fw-bold">
+                    <i class="fas fa-user-md me-2"></i> Tenaga Profesional
+                 </div>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <a href="javascript:void(0);" 
+                   onclick="openDocPreview('Standar Operasional Prosedur', '${mainData.url_sop || ''}')" 
+                   class="btn btn-warning text-dark rounded-pill px-5 py-2 hover-scale border-0 shadow-sm d-inline-flex align-items-center">
+                    <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-book-reader fs-6"></i>
+                    </div>
+                    <div class="lh-sm">
+                        <span class="fw-bold small">${mainData.sop || 'Dokumen SOP'}</span>
+                    </div>
+                </a>
             </div>
         </div>
+    </div>
+
         
         <div class="col-lg-4" data-aos="fade-left">
             <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-success text-white position-relative overflow-hidden d-flex flex-column justify-content-center">
@@ -2767,19 +2805,7 @@ function renderKlinik(list) {
                 </div>
 
                 <div class="d-grid gap-3 position-relative px-2" style="z-index: 2;">
-                    
-                    <a href="javascript:void(0);" onclick="openDocPreview('Badan Hukum', '${mainData.url_badan_hukum || ''}')" class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-balance-scale fs-5"></i>
-                            </div>
-                            <div class="lh-sm overflow-hidden">
-                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Badan Hukum</small>
-                                <span class="fw-bold small text-truncate d-block">${mainData.dasar_hukum || '-'}</span>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="javascript:void(0);" onclick="openDocPreview('Surat Keputusan', '${mainData.url_sk || ''}')" class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
+                             <a href="javascript:void(0);" class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
                         <div class="d-flex align-items-center">
                             <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-file-contract fs-5"></i>
@@ -2789,18 +2815,20 @@ function renderKlinik(list) {
                                 <span class="fw-bold small text-truncate d-block">${mainData.sk || '-'}</span>
                             </div>
                         </div>
-                    </a>
-
-                    <a href="javascript:void(0);" onclick="openDocPreview('Standar Operasional Prosedur', '${mainData.url_sop || ''}')" class="btn btn-warning text-dark text-start py-2 hover-scale border-0 shadow-sm">
+                    </a>   
+                    <a href="javascript:void(0);"  class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
                         <div class="d-flex align-items-center">
                             <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-book-reader fs-5"></i>
+                                <i class="fas fa-balance-scale fs-5"></i>
                             </div>
                             <div class="lh-sm overflow-hidden">
-                                <span class="fw-bold small text-truncate d-block">${mainData.sop || 'Dokumen SOP'}</span>
+                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Surat Akreditasi</small>
+                                <span class="fw-bold small text-truncate d-block">${mainData.surat_akreditasi|| '-'}</span>
                             </div>
                         </div>
                     </a>
+
+                   
                 </div>
             </div>
         </div>
