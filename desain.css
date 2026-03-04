@@ -550,6 +550,25 @@ main {
     transform: translateY(20px) scale(0.8);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.27);
 }
+/* CSS tambahan untuk menangani perubahan warna teks saat hover */
+    .btn-custom-hover:hover {
+        background-color: #ffffff !important; /* Menjadi putih solid */
+        border-color: #ffffff !important;
+    }
+    
+    /* Mengubah semua teks di dalam tombol menjadi hitam saat di-hover */
+    .btn-custom-hover:hover .text-white,
+    .btn-custom-hover:hover small,
+    .btn-custom-hover:hover span,
+    .btn-custom-hover:hover i {
+        color: #000000 !important;
+        transition: color 0.3s ease;
+    }
+
+    .btn-custom-hover {
+        transition: all 0.3s ease;
+    }
+
 .gallery-card-creative:hover .icon-box { transform: translateY(0) scale(1); }
 #penyerapananggaran-section .card {
     background: linear-gradient(145deg, #ffffff, #f8f9fa);
