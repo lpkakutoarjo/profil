@@ -2744,16 +2744,11 @@ function renderKlinik(list) {
                  </div>
             </div>
 
-            <div class="d-flex justify-content-center">
+   <div class="d-flex justify-content-left mt-3">
                 <a href="javascript:void(0);" 
                    onclick="openDocPreview('Standar Operasional Prosedur', '${mainData.url_sop || ''}')" 
-                   class="btn btn-warning text-dark rounded-pill px-5 py-2 hover-scale border-0 shadow-sm d-inline-flex align-items-center">
-                    <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-book-reader fs-6"></i>
-                    </div>
-                    <div class="lh-sm">
-                        <span class="fw-bold small">${mainData.sop || 'Dokumen SOP'}</span>
-                    </div>
+                   class="btn btn-outline-success fw-bold shadow-sm rounded-pill px-4 py-2 hover-scale d-inline-flex align-items-center">
+                    <i class="fas fa-book-reader me-2"></i> Lihat Standar Operasional Prosedur (SOP)
                 </a>
             </div>
         </div>
@@ -2780,32 +2775,33 @@ function renderKlinik(list) {
                     <div style="width: 60px; height: 3px; background: #fff; margin: 0 auto;"></div>
                 </div>
 
-                <div class="d-grid gap-3 position-relative px-2" style="z-index: 2;">
-                             <a href="javascript:void(0);" class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-file-contract fs-5"></i>
-                            </div>
-                            <div class="lh-sm overflow-hidden">
-                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Surat Keputusan</small>
-                                <span class="fw-bold small text-truncate d-block">${mainData.sk || '-'}</span>
-                            </div>
-                        </div>
-                    </a>   
-                    <a href="javascript:void(0);"  class="btn btn-outline-light text-start py-2 hover-scale border-opacity-50">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-balance-scale fs-5"></i>
-                            </div>
-                            <div class="lh-sm overflow-hidden">
-                                <small class="d-block text-white-50" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Surat Akreditasi</small>
-                                <span class="fw-bold small text-truncate d-block">${mainData.surat_akreditasi|| '-'}</span>
-                            </div>
-                        </div>
-                    </a>
+<div class="d-grid gap-3 position-relative px-2" style="z-index: 2;">
+    <a href="javascript:void(0);" 
+       class="btn btn-outline-light btn-custom-hover text-start py-2 hover-scale border-opacity-50">
+        <div class="d-flex align-items-center">
+            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-balance-scale fs-5 text-white"></i>
+            </div>
+            <div class="lh-sm overflow-hidden">
+                <small class="d-block text-white fw-bolder" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Surat Keputusan</small>
+                <span class="fw-bold text-white small text-truncate d-block">${mainData.sk || '-'}</span>
+            </div>
+        </div>
+    </a>   
 
-                   
-                </div>
+    <a href="javascript:void(0);" 
+       class="btn btn-outline-light btn-custom-hover text-start py-2 hover-scale border-opacity-50">
+        <div class="d-flex align-items-center">
+            <div class="bg-white bg-opacity-25 rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-file-contract fs-5 text-white"></i>
+            </div>
+            <div class="lh-sm overflow-hidden">
+                <small class="d-block text-white fw-bolder" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;">Surat Akreditasi</small>
+                <span class="fw-bold text-white small text-truncate d-block">${mainData.surat_akreditasi || '-'}</span>
+            </div>
+        </div>
+    </a>
+</div>
             </div>
         </div>
     </div>`;
