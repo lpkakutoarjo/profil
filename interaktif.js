@@ -615,41 +615,17 @@ onclick="openDocPreview('Standar Operasional Prosedur', '${(data.url_sop || '').
     }
 }
 
-
 function renderReintegrasi(list) {
     const serviceContainer = document.getElementById('service-content-area');
     const regContainer = document.getElementById('registration-container');
     
     if (!serviceContainer) return;
     serviceContainer.innerHTML = '';
-    if(regContainer) regContainer.innerHTML = '';
+    if(regContainer) regContainer.innerHTML = ''; // Pastikan container pendaftaran kosong
 
     if (!list || list.length === 0) {
         serviceContainer.innerHTML = '<div class="col-12 text-center py-5"><h5 class="text-muted">Data layanan reintegrasi belum tersedia.</h5></div>';
         return;
-    }
-
-    // --- RENDER PENDAFTARAN ONLINE ---
-    const firstItem = list[0];
-    let rawLink = firstItem.link_form || firstItem.Link_Form || firstItem.link || "";
-    let cleanLink = rawLink.toString().trim();
-    const hasLink = (cleanLink.length > 0 && cleanLink !== "#");
-    let btnHref = hasLink ? cleanLink : "javascript:void(0);";
-    let btnTarget = hasLink ? 'target="_blank"' : '';
-    let btnOnClick = hasLink ? '' : 'onclick="showDevPopup(); return false;"';
-
-    if (regContainer) {
-        regContainer.innerHTML = `
-        <div class="col-lg-10 mx-auto mb-4">
-            <div class="card bg-primary text-white border-0 shadow-lg rounded-4 overflow-hidden position-relative">
-                <div class="card-body p-4 text-center position-relative" style="z-index:1;">
-                    <h3 class="fw-bold mb-3"><i class="fas fa-laptop-file me-2"></i> Pendaftaran Online Terpadu</h3>
-                    <a href="${btnHref}" ${btnTarget} ${btnOnClick} class="btn btn-warning btn-lg fw-bold rounded-pill px-5 shadow pulse-anim">
-                        <i class="fas fa-paper-plane me-2"></i> ISI FORMULIR PENDAFTARAN
-                    </a>
-                </div>
-            </div>
-        </div>`;
     }
 
     // --- RENDER LAYANAN ---
