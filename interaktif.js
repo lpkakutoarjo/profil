@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbxtbrrQ1__pb8utXz6esM9TMTnFnPfmtKAzYaMG6CQmVbaCa09D4RbrFvMnLOGfhy_3/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbw_utNPSUU3aZMg8zpo4jM0yahu12Tr3K1vhWXgKPu9gG7935f8JbAKiBaXqw31ieUo/exec';
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -1950,50 +1950,84 @@ function slugify(text) {
 /* --- FUNGSI RENDER BERITA (BERANDA) & RUNNING TEXT --- */
 async function loadRunningText() {
     try {
-        const response = await fetch(API_URL);
+        // 1. Identifikasi Origin (Domain) saat ini
+        const currentOrigin = window.location.origin;
+        
+        // 2. Tambahkan parameter origin ke URL agar lolos pengecekan di Apps Script
+        const fetchUrl = `${API_URL}${API_URL.includes('?') ? '&' : '?'}origin=${encodeURIComponent(currentOrigin)}`;
+        
+        const response = await fetch(fetchUrl);
         const allData = await response.json();
 
-        // 1. Ambil & Sort Berita Terbaru
+        // Cek jika API mengembalikan status error dari Apps Script
+        if (allData.status === "error") {
+            console.error("Akses API Ditolak:", allData.message);
+            return;
+        }
+
+        // --- LOGIKA DATA BERITA ---
         const sheetBerita = Object.keys(allData).find(key => key.toLowerCase() === 'berita');
         const listBerita = allData[sheetBerita] || [];
         let beritaTxt = "Ikuti terus perkembangan kegiatan LPKA Kutoarjo.";
         
         if (listBerita.length > 0) {
-            const getValidDate = (item) => new Date(item.tanggal || item.Tanggal || 0);
+            const getValidDate = (item) => {
+                let d = item.tanggal || item.Tanggal;
+                return d ? new Date(d) : new Date(0);
+            };
             const sorted = listBerita.slice().sort((a, b) => getValidDate(b) - getValidDate(a));
-            beritaTxt = sorted[0].judul || sorted[0].Judul || "Berita terbaru";
+            beritaTxt = sorted[0].judul || sorted[0].Judul || "Berita terbaru hari ini";
         }
 
-        // 2. Ambil Jadwal Kunjungan
+        // --- LOGIKA JADWAL KUNJUNGAN ---
         const sheetLayanan = Object.keys(allData).find(key => key.toLowerCase() === 'layanankunjungan');
         const dataLayanan = allData[sheetLayanan] || [];
-        let jadwalClean = "-";
+        let jadwalClean = "Silahkan hubungi petugas untuk informasi jadwal.";
         
         if (dataLayanan.length > 0) {
             let jadwalRaw = dataLayanan[0].jadwal || dataLayanan[0].Jadwal || "";
-            jadwalClean = jadwalRaw.toString().split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0).join(" | ");
+            jadwalClean = jadwalRaw.toString()
+                .split(/\r?\n/)
+                .map(l => l.trim())
+                .filter(l => l.length > 0)
+                .join(" | ");
         }
 
-        // 3. Gabungkan dalam satu blok besar
+        // --- RENDER HTML ---
         const contentBlock = `
             <div class="d-flex align-items-center">
-                            <span class="mx-5 fw-bold text-dark"><i class="fas fa-newspaper text-success me-2"></i> BERITA TERBARU: <span class="text-success">${beritaTxt}</span></span>    
-            <span class="mx-5 fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i> JADWAL KUNJUNGAN: <span class="text-primary">${jadwalClean}</span></span>
-                <span class="mx-5 fw-bold text-danger text-uppercase"><i class="fas fa-shield-alt me-2"></i> WASPADA PENIPUAN! Seluruh layanan pemasyarakatan (Remisi, PB, CB, CMB, dan Kunjungan) TIDAK DIPUNGUT BIAYA (GRATIS)</span>
+                <span class="mx-5 fw-bold text-dark">
+                    <i class="fas fa-newspaper text-success me-2"></i> 
+                    BERITA TERBARU: <span class="text-success">${beritaTxt}</span>
+                </span>    
+                <span class="mx-5 fw-bold text-dark">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i> 
+                    JADWAL KUNJUNGAN: <span class="text-primary">${jadwalClean}</span>
+                </span>
+                <span class="mx-5 fw-bold text-danger text-uppercase">
+                    <i class="fas fa-shield-alt me-2"></i> 
+                    WASPADA PENIPUAN! Seluruh layanan pemasyarakatan (Remisi, PB, CB, CMB, dan Kunjungan) TIDAK DIPUNGUT BIAYA (GRATIS)
+                </span>
             </div>
         `;
 
         const track = document.getElementById("running-info-track");
         if (track) {
-            // DUPLIKASI: Masukkan 2x agar repeat terjadi tepat saat teks pertama berakhir
+            // Duplikasi content agar animasi berjalan seamless (tanpa jeda kosong)
             track.innerHTML = contentBlock + contentBlock;
         }
 
     } catch (error) {
         console.error("Gagal update info:", error);
+        // Fallback jika server down agar track tidak kosong melompong
+        const track = document.getElementById("running-info-track");
+        if (track) {
+            track.innerHTML = `<div class="mx-5 fw-bold text-danger">Gagal memuat data terbaru. Periksa koneksi internet Anda.</div>`;
+        }
     }
 }
 
+// Jalankan fungsi
 loadRunningText();
 
 
