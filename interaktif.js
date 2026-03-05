@@ -1952,6 +1952,8 @@ async function loadRunningText() {
     try {
         const response = await fetch(API_URL);
         const allData = await response.json();
+
+        // 1. Ambil & Sort Berita Terbaru
         const sheetBerita = Object.keys(allData).find(key => key.toLowerCase() === 'berita');
         const listBerita = allData[sheetBerita] || [];
         let beritaTxt = "Ikuti terus perkembangan kegiatan LPKA Kutoarjo.";
@@ -1962,34 +1964,39 @@ async function loadRunningText() {
             beritaTxt = sorted[0].judul || sorted[0].Judul || "Berita terbaru";
         }
 
-        const sheetLayanan = Object.keys(allData).find(key => 
-            key.toLowerCase() === 'kunjungan' || key.toLowerCase() === 'layanankunjungan'
-        );
+        // 2. Ambil Jadwal Kunjungan
+        const sheetLayanan = Object.keys(allData).find(key => key.toLowerCase() === 'layanankunjungan');
         const dataLayanan = allData[sheetLayanan] || [];
         let jadwalClean = "-";
         
         if (dataLayanan.length > 0) {
             let jadwalRaw = dataLayanan[0].jadwal || dataLayanan[0].Jadwal || "";
-            jadwalClean = jadwalRaw.toString().split(/\r?\n/).map(l => l.replace(/^[-*•\d\.]+\s*/, '').trim()).filter(l => l.length > 0).join(" | ");
+            jadwalClean = jadwalRaw.toString().split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0).join(" | ");
         }
+
+        // 3. Gabungkan dalam satu blok besar
         const contentBlock = `
             <div class="d-flex align-items-center">
-                <span class="mx-5 fw-bold text-dark"><i class="fas fa-newspaper text-success me-2"></i> BERITA TERBARU: <span class="text-success">${beritaTxt}</span></span>    
-                <span class="mx-5 fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i> JADWAL KUNJUNGAN: <span class="text-primary">${jadwalClean}</span></span>
+                            <span class="mx-5 fw-bold text-dark"><i class="fas fa-newspaper text-success me-2"></i> BERITA TERBARU: <span class="text-success">${beritaTxt}</span></span>    
+            <span class="mx-5 fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i> JADWAL KUNJUNGAN: <span class="text-primary">${jadwalClean}</span></span>
                 <span class="mx-5 fw-bold text-danger text-uppercase"><i class="fas fa-shield-alt me-2"></i> WASPADA PENIPUAN! Seluruh layanan pemasyarakatan (Remisi, PB, CB, CMB, dan Kunjungan) TIDAK DIPUNGUT BIAYA (GRATIS)</span>
             </div>
         `;
 
         const track = document.getElementById("running-info-track");
         if (track) {
+            // DUPLIKASI: Masukkan 2x agar repeat terjadi tepat saat teks pertama berakhir
             track.innerHTML = contentBlock + contentBlock;
         }
 
     } catch (error) {
-        console.error("Gagal update info running text:", error);
+        console.error("Gagal update info:", error);
     }
 }
+
 loadRunningText();
+
+
 
 function renderBerita(list) {
     const container = document.getElementById('news-container');
