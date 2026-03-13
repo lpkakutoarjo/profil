@@ -741,7 +741,7 @@ function renderInfoPublik(list) {
     if (!dataToRender || dataToRender.length === 0) {
         container.innerHTML = `<div class="col-12 text-center py-5">
             <h5 class="text-muted">Data dokumen ${kategoriFilter ? `kategori "${kategoriFilter}" ` : ''}belum tersedia.</h5>
-            ${kategoriFilter ? '<a href="infopublik.html" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>' : ''}
+            ${kategoriFilter ? '<a href="/infopublik" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>' : ''}
         </div>`;
         return;
     }
@@ -817,10 +817,10 @@ function setupInfoPublikMenu(list) {
     const dropdown = document.getElementById('infoPublikDropdown');
     if (!dropdown || !list) return;
     const uniqueCategories = [...new Set(list.map(item => item.kategori || item.Kategori || ""))].filter(k => k && k.trim() !== "").sort();
-    let html = '<li><a class="dropdown-item" href="infopublik.html">Semua Dokumen</a></li>';
+    let html = '<li><a class="dropdown-item" href="/infopublik">Semua Dokumen</a></li>';
     if (uniqueCategories.length > 0) {
         html += '<li><hr class="dropdown-divider"></li>';
-        uniqueCategories.forEach(cat => { html += `<li><a class="dropdown-item" href="infopublik.html?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`; });
+        uniqueCategories.forEach(cat => { html += `<li><a class="dropdown-item" href="/infopublik?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`; });
     }
     dropdown.innerHTML = html;
 }
@@ -901,7 +901,7 @@ function renderInfoPublik(list) {
             <div class="col-12 text-center py-5">
                 <i class="fas fa-file-circle-exclamation fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">Data dokumen ${kategoriFilter ? `kategori "${kategoriFilter}" ` : ''}belum tersedia.</h5>
-                <a href="infopublik.html" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>
+                <a href="/infopublik" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>
             </div>`;
         return;
     }
@@ -978,11 +978,11 @@ function setupInfoPublikMenu(list) {
 
     const uniqueCategories = [...new Set(list.map(item => item.kategori || item.Kategori || ""))].filter(Boolean).sort();
     
-    let html = '<li><a class="dropdown-item" href="infopublik.html">Semua Dokumen</a></li>';
+    let html = '<li><a class="dropdown-item" href="/infopublik">Semua Dokumen</a></li>';
     if (uniqueCategories.length > 0) {
         html += '<li><hr class="dropdown-divider"></li>';
         uniqueCategories.forEach(cat => {
-            html += `<li><a class="dropdown-item" href="infopublik.html?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`;
+            html += `<li><a class="dropdown-item" href="/infopublik?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`;
         });
     }
     dropdown.innerHTML = html;
@@ -996,7 +996,7 @@ function setupSearchListener() {
             e.preventDefault(); 
             const input = this.querySelector('input');
             const keyword = input.value.trim();
-            if(keyword) window.location.href = `pencarian.html?q=${encodeURIComponent(keyword)}`;
+            if(keyword) window.location.href = `/pencarian?q=${encodeURIComponent(keyword)}`;
         });
     });
 }
@@ -1036,7 +1036,7 @@ if (data.berita) data.berita.forEach((item, index) => {
             title: item.judul, 
             desc: item.ringkasan || item.isi, 
             // Ubah link dari id ke judul
-            link: `bacaselengkapnya.html?judul=${judulUrl}`, 
+            link: `/bacaselengkapnya?judul=${judulUrl}`, 
             image: item.gambar1 || item.imageUrl || "" 
         });
     }
@@ -1620,7 +1620,7 @@ function renderPejabat(list) {
     if(!container || !list || list.length === 0) { if(container) container.innerHTML = '<div class="text-center text-muted">Data tidak tersedia</div>'; return; }
     const kepala = list[0]; 
     const imgUrl = fixGoogleDriveImage(kepala.foto) || "https://via.placeholder.com/150x150";
-    container.innerHTML = `<div class="kepala-container text-center p-3" onclick="window.location.href='pejabat.html'"><div class="kepala-img-container"><img src="${imgUrl}" class="kepala-img"></div><h5 class="fw-bold text-primary mb-1">${kepala.nama}</h5></div>`;
+    container.innerHTML = `<div class="kepala-container text-center p-3" onclick="window.location.href='/pejabat'"><div class="kepala-img-container"><img src="${imgUrl}" class="kepala-img"></div><h5 class="fw-bold text-primary mb-1">${kepala.nama}</h5></div>`;
 }
 
 function renderPejabatFull(list) {
