@@ -2079,10 +2079,10 @@ function renderBerita(list) {
                 </div>
                 <div class="card-body p-4">
                     <h5 class="news-title mb-3">
-                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
+                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
                     </h5>
                     <p class="small text-secondary">${ringkasan ? ringkasan.substring(0,90)+'...' : ''}</p>
-                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
+                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -2146,10 +2146,10 @@ function renderBeritaFull(list) {
                 </div>
                 <div class="card-body p-3">
                     <h5 class="news-title mb-2 fs-6">
-                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
+                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
                     </h5>
                     <p class="small text-muted mb-3" style="font-size:0.85rem;">${ringkasan ? ringkasan.substring(0,80)+'...' : ''}</p>
-                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
+                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
