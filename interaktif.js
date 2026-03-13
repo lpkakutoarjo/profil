@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbw_utNPSUU3aZMg8zpo4jM0yahu12Tr3K1vhWXgKPu9gG7935f8JbAKiBaXqw31ieUo/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzOyqY2AzTPWXnn9jWEuI8M-SUuu6uJ1xD_bWw48_Ds9NTFHrHioF83KP9hDGIN2yjQ/exec';
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
@@ -2201,7 +2201,7 @@ function renderDetailBerita(list) {
     // 1. JUDUL
     document.getElementById('detail-title').innerText = judulAsli;
 
-    // 2. TANGGAL
+// 2. TANGGAL & JUMLAH DIBACA
     const dateEl = document.getElementById('detail-date');
     if(dateEl) { 
         let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
@@ -2212,8 +2212,18 @@ function renderDetailBerita(list) {
                 dateStr = d.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
         }
-        dateEl.innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${dateStr} <span class="mx-2">|</span> Humas LPKA`; 
+        
+        // Ambil data view dari Google Sheets (jika belum ada, default 0)
+        let viewCount = item.views || item.Views || item.dibaca || 0;
+        
+        // Tampilkan ke layar
+        dateEl.innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${dateStr} <span class="mx-2">|</span> Humas LPKA <span class="mx-2">|</span> <i class="fas fa-eye text-primary me-1"></i> ${viewCount} kali dibaca`; 
     }
+
+    // Panggil fungsi untuk menambah view di background
+    setTimeout(() => {
+        tambahViewBerita(judulAsli);
+    }, 2000); // Delay 2 detik agar tidak memberatkan loading awal
 
     // 3. GAMBAR UTAMA
     const imgEl = document.getElementById('detail-img');
@@ -3259,6 +3269,18 @@ function fixGoogleDriveImage(url) {
     }
     
     return url; 
+}
+
+// Fungsi untuk mengirim request penambahan view ke Google Apps Script
+function tambahViewBerita(judulBerita) {
+    if(!judulBerita) return;
+    
+    // Gunakan API_URL yang sama dengan yang ada di atas
+    const urlHit = API_URL + "?action=tambahView&judul=" + encodeURIComponent(judulBerita);
+    
+    fetch(urlHit, { method: 'GET', mode: 'no-cors' })
+        .then(() => console.log("View berhasil ditambahkan."))
+        .catch(err => console.error("Gagal menambah view:", err));
 }
 
 // Jalankan saat dokumen siap
