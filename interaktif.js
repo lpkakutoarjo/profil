@@ -204,6 +204,7 @@ case 'home':
             break;
         case 'bacaselengkapnya':
             renderDetailBerita(data.berita);
+            renderLayananSidebar(data);
             break;
         case 'reintegrasi':
             renderReintegrasi(data.reintegrasi);
@@ -2330,14 +2331,8 @@ function renderDetailBerita(list) {
             }
         }
         let viewCount = item.views || item.Views || item.dibaca || 0;
-        dateEl.innerHTML = `
-<div class="d-flex flex-wrap align-items-center gap-2">
-    <span><i class="far fa-calendar-alt me-1"></i> ${dateStr}</span>
-    <span class="d-none d-sm-inline text-muted">|</span> 
-    <span>Humas LPKA</span>
-    <span class="d-none d-sm-inline text-muted">|</span>
-    <span><i class="fas fa-eye text-primary me-1"></i> ${viewCount} kali dibaca</span>
-</div>`;    }
+        dateEl.innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${dateStr} <span class="mx-2">|</span> Humas LPKA <span class="mx-2">|</span> <i class="fas fa-eye text-primary me-1"></i> ${viewCount} kali dibaca`; 
+    }
 
     // Update views di database/Sheets
     setTimeout(() => { tambahViewBerita(judulAsli); }, 2000);
@@ -3459,3 +3454,85 @@ function tambahViewBerita(judulBerita) {
 
 // Jalankan saat dokumen siap
 document.addEventListener('DOMContentLoaded', loadData);
+
+function renderLayananSidebar(allData) {
+    const container = document.getElementById('layanan-sidebar-container');
+    if (!container || !allData) return;
+
+    // --- 1. AMBIL JADWAL DARI TAB LAYANANKUNJUNGAN ---
+    const sheetLayanan = Object.keys(allData).find(key => key.toLowerCase() === 'layanankunjungan');
+    const dataLayanan = allData[sheetLayanan] || [];
+    let jadwalTeks = "Silahkan hubungi petugas untuk informasi jadwal.";
+    
+    if (dataLayanan.length > 0) {
+        // Mengambil kolom 'jadwal' atau 'Jadwal'
+        jadwalTeks = dataLayanan[0].jadwal || dataLayanan[0].Jadwal || jadwalTeks;
+    }
+
+    // --- 2. HELPER UNTUK AMBIL LOGO DARI KOLOM 'LOGO' ---
+    const getLogoUrl = (tabName) => {
+        const key = Object.keys(allData).find(k => k.toLowerCase() === tabName.toLowerCase());
+        const dataTab = allData[key] || [];
+        if (dataTab.length > 0) {
+            const rawLogo = dataTab[0].logo || dataTab[0].Logo;
+            return rawLogo ? fixGoogleDriveImage(rawLogo) : null;
+        }
+        return null;
+    };
+
+    const logoPkbm = getLogoUrl('pkbm');
+    const logoKlinik = getLogoUrl('klinik');
+    const logoReintegrasi = getLogoUrl('reintegrasi');
+
+    container.innerHTML = `
+        <div class="d-grid gap-3">
+            <div class="card border-0 shadow-sm rounded-4 mb-2 bg-light border-start border-primary border-4">
+                <div class="card-body p-3">
+                    <h6 class="fw-bold text-primary mb-2"><i class="fas fa-clock me-2"></i>Jadwal Kunjungan</h6>
+                    <div class="small text-dark fw-medium" style="white-space: pre-line; line-height: 1.5;">
+                        ${jadwalTeks}
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-outline-warning service-sidebar-btn" onclick="window.location.href='pkbm.html'">
+                <div class="d-flex align-items-center w-100 py-2">
+                    <div class="service-icon-wrapper me-3">
+                        ${logoPkbm ? `<img src="${logoPkbm}" alt="Logo PKBM">` : `<i class="fas fa-graduation-cap fa-2x"></i>`}
+                    </div>
+                    <div class="text-start">
+                        <div class="fw-bold text-dark mb-0">Layanan Pendidikan</div>
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">Program PKBM & Ketrampilan</small>
+                    </div>
+                </div>
+            </button>
+
+            <button class="btn btn-outline-danger service-sidebar-btn" onclick="window.location.href='klinik.html'">
+                <div class="d-flex align-items-center w-100 py-2">
+                    <div class="service-icon-wrapper me-3">
+                        ${logoKlinik ? `<img src="${logoKlinik}" alt="Logo Klinik">` : `<i class="fas fa-stethoscope fa-2x"></i>`}
+                    </div>
+                    <div class="text-start">
+                        <div class="fw-bold text-dark mb-0">Layanan Kesehatan</div>
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">Klinik & Perawatan Anak</small>
+                    </div>
+                </div>
+            </button>
+
+            <button class="btn btn-outline-success service-sidebar-btn" onclick="window.location.href='reintegrasi.html'">
+                <div class="d-flex align-items-center w-100 py-2">
+                    <div class="service-icon-wrapper me-3">
+                        ${logoReintegrasi ? `<img src="${logoReintegrasi}" alt="Logo Integrasi">` : `<i class="fas fa-handshake fa-2x"></i>`}
+                    </div>
+                    <div class="text-start">
+                        <div class="fw-bold text-dark mb-0">Layanan Integrasi</div>
+                        <small class="text-muted d-block" style="font-size: 0.7rem;">PB, CB, CMB & Asimilasi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    renderLayananSidebar();
+});
