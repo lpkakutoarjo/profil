@@ -1085,3 +1085,22 @@ footer a:hover { color: var(--accent-gold); padding-left: 3px; }
         font-size: 1.5rem;
     }
 }
+
+
+/* Pastikan container dateEl bisa membungkus baris */
+#dateEl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    line-height: 1.6; /* Memberi ruang antar baris saat di ponsel */
+}
+
+/* Menghilangkan pemisah di layar sangat kecil jika diperlukan */
+@media (max-width: 576px) {
+    #dateEl .mx-2 {
+        display: none; 
+    }
+    #dateEl > span, #dateEl {
+        margin-right: 10px;
+    }
+}
