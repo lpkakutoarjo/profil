@@ -199,6 +199,9 @@ case 'home':
         case 'berita':
             renderBeritaFull(data.berita);
             break;
+        case 'berita-terdahulu':
+            renderBeritaTerdahulu(data.berita);
+            break;
         case 'bacaselengkapnya':
             renderDetailBerita(data.berita);
             break;
@@ -741,7 +744,7 @@ function renderInfoPublik(list) {
     if (!dataToRender || dataToRender.length === 0) {
         container.innerHTML = `<div class="col-12 text-center py-5">
             <h5 class="text-muted">Data dokumen ${kategoriFilter ? `kategori "${kategoriFilter}" ` : ''}belum tersedia.</h5>
-            ${kategoriFilter ? '<a href="/infopublik" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>' : ''}
+            ${kategoriFilter ? '<a href="infopublik.html" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>' : ''}
         </div>`;
         return;
     }
@@ -817,10 +820,10 @@ function setupInfoPublikMenu(list) {
     const dropdown = document.getElementById('infoPublikDropdown');
     if (!dropdown || !list) return;
     const uniqueCategories = [...new Set(list.map(item => item.kategori || item.Kategori || ""))].filter(k => k && k.trim() !== "").sort();
-    let html = '<li><a class="dropdown-item" href="/infopublik">Semua Dokumen</a></li>';
+    let html = '<li><a class="dropdown-item" href="infopublik.html">Semua Dokumen</a></li>';
     if (uniqueCategories.length > 0) {
         html += '<li><hr class="dropdown-divider"></li>';
-        uniqueCategories.forEach(cat => { html += `<li><a class="dropdown-item" href="/infopublik?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`; });
+        uniqueCategories.forEach(cat => { html += `<li><a class="dropdown-item" href="infopublik.html?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`; });
     }
     dropdown.innerHTML = html;
 }
@@ -901,7 +904,7 @@ function renderInfoPublik(list) {
             <div class="col-12 text-center py-5">
                 <i class="fas fa-file-circle-exclamation fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">Data dokumen ${kategoriFilter ? `kategori "${kategoriFilter}" ` : ''}belum tersedia.</h5>
-                <a href="/infopublik" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>
+                <a href="infopublik.html" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>
             </div>`;
         return;
     }
@@ -978,11 +981,11 @@ function setupInfoPublikMenu(list) {
 
     const uniqueCategories = [...new Set(list.map(item => item.kategori || item.Kategori || ""))].filter(Boolean).sort();
     
-    let html = '<li><a class="dropdown-item" href="/infopublik">Semua Dokumen</a></li>';
+    let html = '<li><a class="dropdown-item" href="infopublik.html">Semua Dokumen</a></li>';
     if (uniqueCategories.length > 0) {
         html += '<li><hr class="dropdown-divider"></li>';
         uniqueCategories.forEach(cat => {
-            html += `<li><a class="dropdown-item" href="/infopublik?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`;
+            html += `<li><a class="dropdown-item" href="infopublik.html?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`;
         });
     }
     dropdown.innerHTML = html;
@@ -996,7 +999,7 @@ function setupSearchListener() {
             e.preventDefault(); 
             const input = this.querySelector('input');
             const keyword = input.value.trim();
-            if(keyword) window.location.href = `/pencarian?q=${encodeURIComponent(keyword)}`;
+            if(keyword) window.location.href = `pencarian.html?q=${encodeURIComponent(keyword)}`;
         });
     });
 }
@@ -1036,7 +1039,7 @@ if (data.berita) data.berita.forEach((item, index) => {
             title: item.judul, 
             desc: item.ringkasan || item.isi, 
             // Ubah link dari id ke judul
-            link: `/bacaselengkapnya?judul=${judulUrl}`, 
+            link: `bacaselengkapnya.html?judul=${judulUrl}`, 
             image: item.gambar1 || item.imageUrl || "" 
         });
     }
@@ -1620,7 +1623,7 @@ function renderPejabat(list) {
     if(!container || !list || list.length === 0) { if(container) container.innerHTML = '<div class="text-center text-muted">Data tidak tersedia</div>'; return; }
     const kepala = list[0]; 
     const imgUrl = fixGoogleDriveImage(kepala.foto) || "https://via.placeholder.com/150x150";
-    container.innerHTML = `<div class="kepala-container text-center p-3" onclick="window.location.href='/pejabat'"><div class="kepala-img-container"><img src="${imgUrl}" class="kepala-img"></div><h5 class="fw-bold text-primary mb-1">${kepala.nama}</h5></div>`;
+    container.innerHTML = `<div class="kepala-container text-center p-3" onclick="window.location.href='pejabat.html'"><div class="kepala-img-container"><img src="${imgUrl}" class="kepala-img"></div><h5 class="fw-bold text-primary mb-1">${kepala.nama}</h5></div>`;
 }
 
 function renderPejabatFull(list) {
@@ -2079,10 +2082,10 @@ function renderBerita(list) {
                 </div>
                 <div class="card-body p-4">
                     <h5 class="news-title mb-3">
-                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
+                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
                     </h5>
                     <p class="small text-secondary">${ringkasan ? ringkasan.substring(0,90)+'...' : ''}</p>
-                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
+                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -2091,6 +2094,7 @@ function renderBerita(list) {
 }
 
 /* --- FUNGSI RENDER BERITA FULL (HALAMAN BERITA) --- */
+/* --- FUNGSI RENDER BERITA FULL (DIBATASI 9 BERITA) --- */
 function renderBeritaFull(list) {
     const container = document.getElementById('news-full-container');
     if (!container) return;
@@ -2103,29 +2107,26 @@ function renderBeritaFull(list) {
 
     // 1. LOGIKA SORTING (Urut Berdasarkan Tanggal Terbaru)
     const sortedList = list.slice().sort((a, b) => {
-        // Ambil nilai tanggal dari berbagai kemungkinan properti
         let dateA = new Date(a.tanggal || a.Tanggal || a.date || a.Date || 0);
         let dateB = new Date(b.tanggal || b.Tanggal || b.date || b.Date || 0);
-        
-        // Kembalikan selisih untuk pengurutan descending (terbaru di atas)
         return dateB - dateA;
     });
+
+    // 2. LIMITASI: Ambil hanya 9 berita pertama
+    const limitedList = sortedList.slice(0, 9);
     
     let html = '';
     
-    // 2. Gunakan sortedList, bukan reversedList
-    sortedList.forEach((item, idx) => {
-        // Gambar
+    limitedList.forEach((item, idx) => {
+        // Logika Gambar
         let img = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "") || "https://via.placeholder.com/400x250?text=No+Image";
         
-        // LOGIKA TAMPILAN TANGGAL
+        // Logika Tanggal
         let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
         let dateStr = rawDate; 
-
         if (rawDate) {
             const d = new Date(rawDate);
             if (!isNaN(d.getTime())) {
-                // Format Indonesia: 03 Feb 2026
                 dateStr = d.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
             }
         }
@@ -2133,8 +2134,6 @@ function renderBeritaFull(list) {
         // Judul & Ringkasan
         let judul = item.judul || item.Judul || "Tanpa Judul";
         let ringkasan = item.ringkasan || item.Ringkasan || item.deskripsi || "";
-        
-        // Buat slug untuk URL
         let judulUrl = encodeURIComponent(slugify(judul));
 
         html += `
@@ -2146,19 +2145,143 @@ function renderBeritaFull(list) {
                 </div>
                 <div class="card-body p-3">
                     <h5 class="news-title mb-2 fs-6">
-                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
+                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
                     </h5>
                     <p class="small text-muted mb-3" style="font-size:0.85rem;">${ringkasan ? ringkasan.substring(0,80)+'...' : ''}</p>
-                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
+                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
     });
+
+    // 3. TAMBAHKAN TOMBOL BERITA TERDAHULU (Jika total berita > 9)
+    if (sortedList.length > 12) {
+        html += `
+        <div class="col-12 text-center mt-4 mb-5">
+            <a href="beritaterdahulu.html" class="btn btn-primary px-5 rounded-pill shadow-sm">
+                <i class="bi bi-arrow-left-circle me-2"></i>Berita Terdahulu
+            </a>
+        </div>`;
+    }
+
     container.innerHTML = html;
 }
+// Deklarasi Global (Pastikan diletakkan di luar fungsi apa pun)
+let currentPage = 1;
+let itemsPerPage = 12; 
+window.allNewsData = []; 
+
+/* --- FUNGSI UPDATE FILTER JUMLAH (DENGAN LOGIKA "SEMUA") --- */
+window.updateItemsPerPage = function(value) {
+    if (value === "all") {
+        // Jika "Semua", set angka yang pasti lebih besar dari jumlah berita
+        itemsPerPage = 999999; 
+    } else {
+        itemsPerPage = parseInt(value);
+    }
+    
+    currentPage = 1; // Reset ke halaman pertama
+    renderBeritaTerdahulu(window.allNewsData); 
+};
+
+/* --- FUNGSI RENDER BERITA TERDAHULU --- */
+function renderBeritaTerdahulu(list) {
+    const container = document.getElementById('news-terdahulu-container');
+    if (!container) return;
+    
+    window.allNewsData = list; 
+
+    if (!list || list.length <= 9) { 
+        container.innerHTML = '<div class="col-12 text-center py-5">Belum ada arsip berita terdahulu.</div>'; 
+        return; 
+    }
+
+    // Sorting Descending (Terbaru ke Terlama)
+    const sortedList = list.slice().sort((a, b) => {
+        let dateA = new Date(a.tanggal || a.Tanggal || 0);
+        let dateB = new Date(b.tanggal || b.Tanggal || 0);
+        return dateB - dateA;
+    });
+
+    // Lewati 9 berita pertama (karena sudah ada di halaman utama)
+    const archivedList = sortedList.slice(9);
+
+    // Kalkulasi Pagination
+    const totalItems = archivedList.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedItems = archivedList.slice(startIndex, startIndex + itemsPerPage);
+    
+    let html = '';
+    paginatedItems.forEach((item) => {
+        let img = fixGoogleDriveImage(item.gambar1 || item.image || "") || "https://via.placeholder.com/400x250?text=No+Image";
+        let rawDate = item.tanggal || item.Tanggal || "";
+        let dateStr = rawDate ? new Date(rawDate).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) : "-";
+        let judulUrl = encodeURIComponent(slugify(item.judul || ""));
+
+        html += `
+        <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up">
+            <div class="card card-news h-100 shadow-sm">
+                <div class="news-img-wrapper" style="height:200px;">
+                    <img src="${img}" style="width:100%; height:100%; object-fit:cover;" alt="berita">
+                    <div class="news-date-badge">${dateStr}</div>
+                </div>
+                <div class="card-body p-3">
+                    <h5 class="news-title mb-2 fs-6 fw-bold">
+                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none text-dark">${item.judul}</a>
+                    </h5>
+                    <p class="small text-muted mb-3">${(item.ringkasan || "").substring(0,75)}...</p>
+                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
+                </div>
+            </div>
+        </div>`;
+    });
+
+    // Tombol Navigasi (Hanya muncul jika total halaman > 1)
+    let paginationHtml = '';
+    if (totalPages > 1) {
+        paginationHtml = `
+        <div class="col-12 d-flex justify-content-center mt-4">
+            <nav><ul class="pagination shadow-sm">
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <button class="page-link" onclick="changePage(${currentPage - 1})">Prev</button>
+                </li>`;
+        
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <button class="page-link" onclick="changePage(${i})">${i}</button>
+                </li>`;
+        }
+
+        paginationHtml += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <button class="page-link" onclick="changePage(${currentPage + 1})">Next</button>
+                </li>
+            </ul></nav>
+        </div>`;
+    }
+
+    container.innerHTML = html + paginationHtml;
+}
+
+// Fungsi Pindah Halaman
+window.changePage = function(page) {
+    currentPage = page;
+    renderBeritaTerdahulu(window.allNewsData);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// FUNGSI GLOBAL UNTUK PINDAH HALAMAN
+window.changePage = function(page) {
+    currentPage = page;
+    renderBeritaTerdahulu(window.allNewsData);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 /* --- FUNGSI RENDER DETAIL (HALAMAN BACASELENGKAPNYA) --- */
 function renderDetailBerita(list) {
-    // Ambil parameter 'judul' dari URL
+    // 1. Ambil parameter 'judul' dari URL
     const params = new URLSearchParams(window.location.search);
     const slugDicuri = params.get('judul'); 
     
@@ -2167,7 +2290,7 @@ function renderDetailBerita(list) {
         return; 
     }
     
-    // CARI DATA
+    // 2. CARI DATA BERDASARKAN SLUG
     const item = list.find(berita => slugify(berita.judul || berita.Judul) === slugDicuri);
 
     if(!item) { 
@@ -2179,10 +2302,8 @@ function renderDetailBerita(list) {
     const judulAsli = item.judul || item.Judul || "Berita LPKA";
     const deskripsiSingkat = (item.ringkasan || item.Ringkasan || item.isi || "").substring(0, 160);
     
-    // 1. Ubah Judul Tab Browser (Sangat Penting untuk Google)
     document.title = `${judulAsli} | LPKA News`;
 
-    // 2. Ubah Meta Description (Agar muncul di cuplikan Google)
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
         metaDesc = document.createElement('meta');
@@ -2191,17 +2312,13 @@ function renderDetailBerita(list) {
     }
     metaDesc.content = deskripsiSingkat;
 
-    // 3. Open Graph (Agar saat share ke WA/FB muncul gambar & judul)
     updateMetaTag('og:title', judulAsli);
     updateMetaTag('og:description', deskripsiSingkat);
     updateMetaTag('og:image', fixGoogleDriveImage(item.gambar1 || item.gambar_1));
 
-    // --- RENDER KONTEN KE HALAMAN ---
-    
-    // 1. JUDUL
+    // --- RENDER KONTEN UTAMA ---
     document.getElementById('detail-title').innerText = judulAsli;
 
-// 2. TANGGAL & JUMLAH DIBACA
     const dateEl = document.getElementById('detail-date');
     if(dateEl) { 
         let rawDate = item.tanggal || item.Tanggal || item.date || item.Date || "";
@@ -2212,20 +2329,13 @@ function renderDetailBerita(list) {
                 dateStr = d.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }
         }
-        
-        // Ambil data view dari Google Sheets (jika belum ada, default 0)
         let viewCount = item.views || item.Views || item.dibaca || 0;
-        
-        // Tampilkan ke layar
         dateEl.innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${dateStr} <span class="mx-2">|</span> Humas LPKA <span class="mx-2">|</span> <i class="fas fa-eye text-primary me-1"></i> ${viewCount} kali dibaca`; 
     }
 
-    // Panggil fungsi untuk menambah view di background
-    setTimeout(() => {
-        tambahViewBerita(judulAsli);
-    }, 2000); // Delay 2 detik agar tidak memberatkan loading awal
+    // Update views di database/Sheets
+    setTimeout(() => { tambahViewBerita(judulAsli); }, 2000);
 
-    // 3. GAMBAR UTAMA
     const imgEl = document.getElementById('detail-img');
     let img1 = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || item.Gambar1 || item.image || "");
     if(imgEl) { 
@@ -2236,38 +2346,96 @@ function renderDetailBerita(list) {
     let img2 = fixGoogleDriveImage(item.gambar2 || item.gambar_2 || item.Gambar2 || "");
     let img3 = fixGoogleDriveImage(item.gambar3 || item.gambar_3 || item.Gambar3 || "");
 
-    // 4. ISI BERITA & SISIPKAN GAMBAR
-    let paragraphs = (item.isi || item.Isi || item.konten || "").toString().split(/\r?\n/).filter(p => p.trim() !== "");
-    let htmlContent = "";
+    // Render Isi Berita dengan sisipan gambar
+    // Render Isi Berita (Modifikasi jarak mb-2 dan gaya font)
+let paragraphs = (item.isi || item.Isi || item.konten || "").toString().split(/\r?\n/).filter(p => p.trim() !== "");
+let htmlContent = "";
+let idx2 = Math.floor(paragraphs.length / 3);
+let idx3 = Math.floor(2 * paragraphs.length / 3);
+
+paragraphs.forEach((p, i) => {
+    // Gunakan class 'article-p' untuk kontrol CSS lebih mudah
+    htmlContent += `<p class="article-p" style="text-align:justify;">${p}</p>`;
     
-    let idx2 = Math.floor(paragraphs.length / 3);
-    let idx3 = Math.floor(2 * paragraphs.length / 3);
+    const insertImage = (src) => `
+    <div class="my-4">
+        <img src="${src}" loading="lazy"
+             class="img-fluid rounded-4 shadow-sm w-100"
+             style="max-height:420px; object-fit:cover;">
+    </div>`;
 
-    paragraphs.forEach((p, i) => {
-        htmlContent += `<p class="lh-lg mb-3" style="text-align:justify;">${p}</p>`;
-        
-        if (i === idx2 && img2) {
-            htmlContent += `
-            <div class="row justify-content-center my-4" data-aos="fade-up">
-                <div class="col-md-10 text-center">
-                    <img src="${img2}" class="img-fluid rounded-3 shadow-sm w-100" style="max-height: 450px; object-fit: contain;" alt="Dokumentasi 2">
-                </div>
-            </div>`;
-        }
-
-        if (i === idx3 && img3) {
-            htmlContent += `
-            <div class="row justify-content-center my-4" data-aos="fade-up">
-                <div class="col-md-10 text-center">
-                    <img src="${img3}" class="img-fluid rounded-3 shadow-sm w-100" style="max-height: 450px; object-fit: contain;" alt="Dokumentasi 3">
-                </div>
-            </div>`;
-        }
-    });
+    if (i === idx2 && img2) htmlContent += insertImage(img2);
+    if (i === idx3 && img3) htmlContent += insertImage(img3);
+});
 
     document.getElementById('detail-content').innerHTML = htmlContent;
+
+    // --- RENDER BERITA TERPOPULER (4 CARD) ---
+    renderPopularNews(list, slugDicuri);
 }
 
+/**
+ * Fungsi pembantu untuk merender 4 berita terpopuler
+ */
+function renderPopularNews(list, currentSlug) {
+    const popularContainer = document.getElementById('popular-sidebar-container');
+    const latestContainer = document.getElementById('latest-sidebar-container');
+    if (!list) return;
+
+    // Filter agar berita yang sedang dibaca tidak muncul di sidebar
+    const otherNews = list.filter(b => slugify(b.judul || b.Judul) !== currentSlug);
+
+    // 1. DATA TERPOPULER (Berdasarkan jumlah Views terbanyak)
+    const popularData = [...otherNews]
+        .sort((a, b) => parseInt(b.views || 0) - parseInt(a.views || 0))
+        .slice(0, 5);
+
+    // 2. DATA TERBARU (Berdasarkan Tanggal Terbaru)
+    const latestData = [...otherNews]
+        .sort((a, b) => {
+            // Ambil properti tanggal (sesuaikan dengan nama kolom di data Anda)
+            const dateA = new Date(a.tanggal || a.Tanggal || a.date || 0);
+            const dateB = new Date(b.tanggal || b.Tanggal || b.date || 0);
+            return dateB - dateA; // Urutkan dari yang paling baru (besar) ke lama (kecil)
+        })
+        .slice(0, 5);
+
+    const createSidebarItem = (item) => {
+        const judul = item.judul || item.Judul;
+        const slug = slugify(judul);
+        const img = fixGoogleDriveImage(item.gambar1 || item.gambar_1 || "");
+        const views = item.views || 0;
+        
+        // Opsional: Ambil format tanggal singkat untuk keterangan tambahan
+        const rawDate = item.tanggal || item.Tanggal || "";
+        let dateInfo = "";
+        if(rawDate) {
+            const d = new Date(rawDate);
+            dateInfo = !isNaN(d.getTime()) ? d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : "";
+        }
+
+        return `
+            <a href="bacaselengkapnya.html?judul=${slug}" class="text-decoration-none text-dark d-block mb-3 sidebar-card-mini">
+                <div class="d-flex align-items-start">
+                    <img src="${img}" class="rounded-2 shadow-sm" 
+                         style="width: 65px; height: 65px; object-fit: cover; flex-shrink: 0;" 
+                         onerror="this.src='https://placehold.co/100x100?text=No+Img'">
+                    
+                    <div class="ms-3">
+                        <h6 class="mb-1 fw-bold text-judul-sidebar" style="font-size: 0.9rem; line-height: 1.3;">${judul}</h6>
+                        <div class="d-flex align-items-center text-muted" style="font-size: 0.7rem;">
+                            <span><i class="fas fa-eye me-1"></i>${views}</span>
+                            ${dateInfo ? `<span class="mx-1">|</span><span><i class="fas fa-calendar-alt me-1"></i>${dateInfo}</span>` : ""}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        `;
+    };
+
+    if (popularContainer) popularContainer.innerHTML = popularData.map(createSidebarItem).join('');
+    if (latestContainer) latestContainer.innerHTML = latestData.map(createSidebarItem).join('');
+}
 // Fungsi bantu untuk update Meta Tags
 function updateMetaTag(property, content) {
     let tag = document.querySelector(`meta[property="${property}"]`);
