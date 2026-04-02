@@ -2330,8 +2330,14 @@ function renderDetailBerita(list) {
             }
         }
         let viewCount = item.views || item.Views || item.dibaca || 0;
-        dateEl.innerHTML = `<i class="far fa-calendar-alt me-1"></i> ${dateStr} <span class="mx-2">|</span> Humas LPKA <span class="mx-2">|</span> <i class="fas fa-eye text-primary me-1"></i> ${viewCount} kali dibaca`; 
-    }
+        dateEl.innerHTML = `
+<div class="d-flex flex-wrap align-items-center gap-2">
+    <span><i class="far fa-calendar-alt me-1"></i> ${dateStr}</span>
+    <span class="d-none d-sm-inline text-muted">|</span> 
+    <span>Humas LPKA</span>
+    <span class="d-none d-sm-inline text-muted">|</span>
+    <span><i class="fas fa-eye text-primary me-1"></i> ${viewCount} kali dibaca</span>
+</div>`;    }
 
     // Update views di database/Sheets
     setTimeout(() => { tambahViewBerita(judulAsli); }, 2000);
