@@ -2416,21 +2416,22 @@ function renderPopularNews(list, currentSlug) {
         }
 
         return `
-            <a href="bacaselengkapnya.html?judul=${slug}" class="text-decoration-none text-dark d-block mb-3 sidebar-card-mini">
-                <div class="d-flex align-items-start">
-                    <img src="${img}" class="rounded-2 shadow-sm" 
-                         style="width: 65px; height: 65px; object-fit: cover; flex-shrink: 0;" 
-                         onerror="this.src='https://placehold.co/100x100?text=No+Img'">
-                    
-                    <div class="ms-3">
-                        <h6 class="mb-1 fw-bold text-judul-sidebar" style="font-size: 0.9rem; line-height: 1.3;">${judul}</h6>
-                        <div class="d-flex align-items-center text-muted" style="font-size: 0.7rem;">
-                            <span><i class="fas fa-eye me-1"></i>${views}</span>
-                            ${dateInfo ? `<span class="mx-1">|</span><span><i class="fas fa-calendar-alt me-1"></i>${dateInfo}</span>` : ""}
-                        </div>
-                    </div>
-                </div>
-            </a>
+           <a href="bacaselengkapnya.html?judul=${slug}" class="text-decoration-none text-dark d-block mb-3 sidebar-card-mini">
+    <div class="d-flex align-items-start">
+        <img src="${img}" class="rounded-2 shadow-sm" 
+             style="width: 65px; height: 65px; object-fit: cover; flex-shrink: 0;" 
+             onerror="this.src='https://placehold.co/100x100?text=No+Img'">
+        
+        <div class="ms-3 w-100"> <h6 class="mb-1 fw-bold text-judul-sidebar" 
+                style="font-size: 0.9rem; line-height: 1.3; text-align: justify;"> ${judul}
+            </h6>
+            <div class="d-flex align-items-center text-muted" style="font-size: 0.7rem;">
+                <span><i class="fas fa-eye me-1"></i>${views}</span>
+                ${dateInfo ? `<span class="mx-1">|</span><span><i class="fas fa-calendar-alt me-1"></i>${dateInfo}</span>` : ""}
+            </div>
+        </div>
+    </div>
+</a>
         `;
     };
 
