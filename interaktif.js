@@ -745,7 +745,7 @@ function renderInfoPublik(list) {
     if (!dataToRender || dataToRender.length === 0) {
         container.innerHTML = `<div class="col-12 text-center py-5">
             <h5 class="text-muted">Data dokumen ${kategoriFilter ? `kategori "${kategoriFilter}" ` : ''}belum tersedia.</h5>
-            ${kategoriFilter ? '<a href="infopublik.html" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>' : ''}
+            ${kategoriFilter ? '<a href="/infopublik" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>' : ''}
         </div>`;
         return;
     }
@@ -821,10 +821,10 @@ function setupInfoPublikMenu(list) {
     const dropdown = document.getElementById('infoPublikDropdown');
     if (!dropdown || !list) return;
     const uniqueCategories = [...new Set(list.map(item => item.kategori || item.Kategori || ""))].filter(k => k && k.trim() !== "").sort();
-    let html = '<li><a class="dropdown-item" href="infopublik.html">Semua Dokumen</a></li>';
+    let html = '<li><a class="dropdown-item" href="/infopublik">Semua Dokumen</a></li>';
     if (uniqueCategories.length > 0) {
         html += '<li><hr class="dropdown-divider"></li>';
-        uniqueCategories.forEach(cat => { html += `<li><a class="dropdown-item" href="infopublik.html?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`; });
+        uniqueCategories.forEach(cat => { html += `<li><a class="dropdown-item" href="/infopublik?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`; });
     }
     dropdown.innerHTML = html;
 }
@@ -905,7 +905,7 @@ function renderInfoPublik(list) {
             <div class="col-12 text-center py-5">
                 <i class="fas fa-file-circle-exclamation fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">Data dokumen ${kategoriFilter ? `kategori "${kategoriFilter}" ` : ''}belum tersedia.</h5>
-                <a href="infopublik.html" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>
+                <a href="/infopublik" class="btn btn-primary btn-sm mt-3">Lihat Semua Dokumen</a>
             </div>`;
         return;
     }
@@ -982,11 +982,11 @@ function setupInfoPublikMenu(list) {
 
     const uniqueCategories = [...new Set(list.map(item => item.kategori || item.Kategori || ""))].filter(Boolean).sort();
     
-    let html = '<li><a class="dropdown-item" href="infopublik.html">Semua Dokumen</a></li>';
+    let html = '<li><a class="dropdown-item" href="/infopublik">Semua Dokumen</a></li>';
     if (uniqueCategories.length > 0) {
         html += '<li><hr class="dropdown-divider"></li>';
         uniqueCategories.forEach(cat => {
-            html += `<li><a class="dropdown-item" href="infopublik.html?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`;
+            html += `<li><a class="dropdown-item" href="/infopublik?kategori=${encodeURIComponent(cat)}">${cat}</a></li>`;
         });
     }
     dropdown.innerHTML = html;
@@ -1000,7 +1000,7 @@ function setupSearchListener() {
             e.preventDefault(); 
             const input = this.querySelector('input');
             const keyword = input.value.trim();
-            if(keyword) window.location.href = `pencarian.html?q=${encodeURIComponent(keyword)}`;
+            if(keyword) window.location.href = `/pencarian?q=${encodeURIComponent(keyword)}`;
         });
     });
 }
@@ -1040,7 +1040,7 @@ if (data.berita) data.berita.forEach((item, index) => {
             title: item.judul, 
             desc: item.ringkasan || item.isi, 
             // Ubah link dari id ke judul
-            link: `bacaselengkapnya.html?judul=${judulUrl}`, 
+            link: `/bacaselengkapnya?judul=${judulUrl}`, 
             image: item.gambar1 || item.imageUrl || "" 
         });
     }
@@ -1624,7 +1624,7 @@ function renderPejabat(list) {
     if(!container || !list || list.length === 0) { if(container) container.innerHTML = '<div class="text-center text-muted">Data tidak tersedia</div>'; return; }
     const kepala = list[0]; 
     const imgUrl = fixGoogleDriveImage(kepala.foto) || "https://via.placeholder.com/150x150";
-    container.innerHTML = `<div class="kepala-container text-center p-3" onclick="window.location.href='pejabat.html'"><div class="kepala-img-container"><img src="${imgUrl}" class="kepala-img"></div><h5 class="fw-bold text-primary mb-1">${kepala.nama}</h5></div>`;
+    container.innerHTML = `<div class="kepala-container text-center p-3" onclick="window.location.href='/pejabat'"><div class="kepala-img-container"><img src="${imgUrl}" class="kepala-img"></div><h5 class="fw-bold text-primary mb-1">${kepala.nama}</h5></div>`;
 }
 
 function renderPejabatFull(list) {
@@ -2083,10 +2083,10 @@ function renderBerita(list) {
                 </div>
                 <div class="card-body p-4">
                     <h5 class="news-title mb-3">
-                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
+                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base">${judul}</a>
                     </h5>
                     <p class="small text-secondary">${ringkasan ? ringkasan.substring(0,90)+'...' : ''}</p>
-                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
+                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-outline-primary btn-readmore w-100 mt-3">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -2146,10 +2146,10 @@ function renderBeritaFull(list) {
                 </div>
                 <div class="card-body p-3">
                     <h5 class="news-title mb-2 fs-6">
-                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
+                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none fw-bold lh-base text-dark">${judul}</a>
                     </h5>
                     <p class="small text-muted mb-3" style="font-size:0.85rem;">${ringkasan ? ringkasan.substring(0,80)+'...' : ''}</p>
-                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
+                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -2159,7 +2159,7 @@ function renderBeritaFull(list) {
     if (sortedList.length > 12) {
         html += `
         <div class="col-12 text-center mt-4 mb-5">
-            <a href="beritaterdahulu.html" class="btn btn-primary px-5 rounded-pill shadow-sm">
+            <a href="/beritaterdahulu" class="btn btn-primary px-5 rounded-pill shadow-sm">
                 <i class="bi bi-arrow-left-circle me-2"></i>Berita Terdahulu
             </a>
         </div>`;
@@ -2230,10 +2230,10 @@ function renderBeritaTerdahulu(list) {
                 </div>
                 <div class="card-body p-3">
                     <h5 class="news-title mb-2 fs-6 fw-bold">
-                        <a href="bacaselengkapnya.html?judul=${judulUrl}" class="text-decoration-none text-dark">${item.judul}</a>
+                        <a href="/bacaselengkapnya?judul=${judulUrl}" class="text-decoration-none text-dark">${item.judul}</a>
                     </h5>
                     <p class="small text-muted mb-3">${(item.ringkasan || "").substring(0,75)}...</p>
-                    <a href="bacaselengkapnya.html?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
+                    <a href="/bacaselengkapnya?judul=${judulUrl}" class="btn btn-sm btn-outline-primary w-100 rounded-pill">Baca Selengkapnya</a>
                 </div>
             </div>
         </div>`;
@@ -2416,7 +2416,7 @@ function renderPopularNews(list, currentSlug) {
         }
 
         return `
-           <a href="bacaselengkapnya.html?judul=${slug}" class="text-decoration-none text-dark d-block mb-3 sidebar-card-mini">
+           <a href="/bacaselengkapnya?judul=${slug}" class="text-decoration-none text-dark d-block mb-3 sidebar-card-mini">
     <div class="d-flex align-items-start">
         <img src="${img}" class="rounded-2 shadow-sm" 
              style="width: 65px; height: 65px; object-fit: cover; flex-shrink: 0;" 
@@ -3496,7 +3496,7 @@ function renderLayananSidebar(allData) {
                 </div>
             </div>
 
-            <button class="btn btn-outline-warning service-sidebar-btn" onclick="window.location.href='pkbm.html'">
+            <button class="btn btn-outline-warning service-sidebar-btn" onclick="window.location.href='/pkbm'">
                 <div class="d-flex align-items-center w-100 py-2">
                     <div class="service-icon-wrapper me-3">
                         ${logoPkbm ? `<img src="${logoPkbm}" alt="Logo PKBM">` : `<i class="fas fa-graduation-cap fa-2x"></i>`}
@@ -3508,7 +3508,7 @@ function renderLayananSidebar(allData) {
                 </div>
             </button>
 
-            <button class="btn btn-outline-danger service-sidebar-btn" onclick="window.location.href='klinik.html'">
+            <button class="btn btn-outline-danger service-sidebar-btn" onclick="window.location.href='/klinik'">
                 <div class="d-flex align-items-center w-100 py-2">
                     <div class="service-icon-wrapper me-3">
                         ${logoKlinik ? `<img src="${logoKlinik}" alt="Logo Klinik">` : `<i class="fas fa-stethoscope fa-2x"></i>`}
@@ -3520,7 +3520,7 @@ function renderLayananSidebar(allData) {
                 </div>
             </button>
 
-            <button class="btn btn-outline-success service-sidebar-btn" onclick="window.location.href='reintegrasi.html'">
+            <button class="btn btn-outline-success service-sidebar-btn" onclick="window.location.href='/reintegrasi'">
                 <div class="d-flex align-items-center w-100 py-2">
                     <div class="service-icon-wrapper me-3">
                         ${logoReintegrasi ? `<img src="${logoReintegrasi}" alt="Logo Integrasi">` : `<i class="fas fa-handshake fa-2x"></i>`}
