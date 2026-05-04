@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     }
 });
 // --- KONFIGURASI API UTAMA ---
-const API_URL = 'https://script.google.com/macros/s/AKfycbzOyqY2AzTPWXnn9jWEuI8M-SUuu6uJ1xD_bWw48_Ds9NTFHrHioF83KP9hDGIN2yjQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby_0QXV9gdA7r3JHIkOJZdeYbPIsFsFvKg1gB9ebRbcRRaNWexi6T2eouT60uh8G4h1/exec';
 
 // Cache Key (Ubah versi ini jika struktur data berubah agar browser mereload data baru)
 const CACHE_KEY = 'lpka_data_cache_v14_full_read'; 
